@@ -1,3 +1,6 @@
+src/main_old.py
+src/out
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
