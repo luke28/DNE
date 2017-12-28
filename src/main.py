@@ -19,7 +19,6 @@ from utils.data_handler import DataHandler as dh
 FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
-
 def init(params):
     # load graph structure
     def load_data(params):
@@ -84,14 +83,12 @@ def main_loop(params, G, embeddings, weights):
                     float(G[u][v]['weight'] * G.graph['degree']) / float(G.node[u]['in_degree'] * G.node[v]['out_degree'])) + np.log(K)
 
     params_modify = params["main_loop"]["modify_embedding"]
-    module_modify_batch = __import__(
-            "batch_strategy." + params_modify["batch_strategy"]["func"], fromlist = ["batch_strategy"]).BatchStrategy
     module_modify_embedding = __import__(
-            "modify_embedding." + params_modify["model"]["func"], fromlist = ["modify_embedding"]).ModifyEmbedding
+            "modify_embedding." + params_modify["func"],
+            fromlist = ["modify_embedding"]).ModifyEmbedding
     def modify_embedding(G, w, c):
-        bs = module_modify_batch(G, params_modify["batch_strategy"])
-        ne = module_modify_embedding(params_modify["model"], w, c)
-        w, c = ne.train(bs.get_batch)
+        ne = module_modify_embedding(params_modify, w, c, G)
+        w, c = ne.train()
 
     #out_f = open("out", "w")
     while True:

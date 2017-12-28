@@ -52,16 +52,11 @@
             }
         },
         "modify_embedding":{
-            "func": "directly_modify",
-            "batch_strategy":{
-                "func": "edges_delta_sampling"
-            },
-            "batch_size": 100,
-            "learn_rate": 0.003,
-            "optimizer": "AdamOptimizer",
-            "lambda": 0.1,
-            "alpha": 0.1,
-            "epoch_num": 10001
+            "func": "alternate_serial",
+            "lambda": 0.001,
+            "alpha": 0.001,
+            "epoch_num": 5
+
         }
     },
     "metrics":[
