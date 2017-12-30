@@ -13,22 +13,19 @@ import datetime
 from operator import itemgetter
 import collections
 
-FILE_PATH = os.path.dirname(os.path.abspath(__file__))
-
-
 
 def main():
     parser = argparse.ArgumentParser(formatter_class = argparse.RawTextHelpFormatter)
-    parser.add_argument('--input_file', type = str, required = True)
-    parser.add_argument('--n', type = int, required = True)
+    parser.add_argument('--input_dir', type = str, required = True, help="the inputfile dir")
+    parser.add_argument('--output_dir', type = str, required = True, help="the outputfile dir")
+    parser.add_argument('--data_name', type=str, required=True, help='the name of dataset')
+    parser.add_argument('--ratio', type = float, required = True, help="the ratio of train nodes")
     parser.add_argument('--self_loop', type = str, default = "yes")
     args = parser.parse_args()
-    args.input_file = os.path.join(FILE_PATH, args.input_file)
-    print(FILE_PATH)
-    #flag_file = os.path.join(FILE_PATH, args.input_file + "_flag.dat")
-    nw_file = os.path.join(FILE_PATH, args.input_file + "_nw.dat")
-    n = args.n
+    nw_file = os.path.join(args.input_dir, args.data_name + "_nw.dat")
+    ratio = args.ratio
     m = 0
+    n = 0
 
     G_init = []
     G_dynamic = {}
@@ -38,6 +35,9 @@ def main():
             if len(line) == 0:
                 continue
             items = line.split()
+            if (len(items) == 1):
+                n = int(int(items[0])*ratio)
+                continue
             if (len(items) != 2):
                 continue
             m = max(int(items[1]), int(items[0]), m)
@@ -77,8 +77,8 @@ def main():
     init_flag_file = os.path.join(FILE_PATH, args.input_file + "_" + str(n) + "_flag_init")
     dynamic_flag_file = os.path.join(FILE_PATH, args.input_file + "_" + str(n) + "_flag_dynamic")
     '''
-    init_nw_file = os.path.join(FILE_PATH, args.input_file + "_" + str(n) + "_nw_init")
-    dynamic_nw_file = os.path.join(FILE_PATH, args.input_file + "_" + str(n) + "_nw_dynamic")
+    init_nw_file = os.path.join(args.output_dir, args.data_name + "_" + str(n) + "_nw_init")
+    dynamic_nw_file = os.path.join(args.output_dir, args.data_name + "_" + str(n) + "_nw_dynamic")
 
     with open(init_nw_file, "w") as f:
         f.write(str(n) + "\n")
