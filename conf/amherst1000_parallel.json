@@ -1,9 +1,9 @@
 {
-    "num_nodes": 40,
+    "num_nodes": 1000,
     "load_data": {
         "func": "load_unweighted_digraph",
         "is_directed": false,
-        "network_file": "dolphins_40_nw_init"
+        "network_file": "amherst_1000_nw_init"
     },
     "init_train":{
         "batch_strategy":{
@@ -11,10 +11,10 @@
         },
         "embedding_model":{
             "func": "line",
-            "num_nodes": 40,
+            "num_nodes": 1000,
             "batch_size": 100,
             "learn_rate": 0.003,
-            "embedding_size": 10,
+            "embedding_size": 20,
             "loss_func": "cross_entropy",
             "optimizer": "AdamOptimizer",
             "neighbor_size": 1,
@@ -22,13 +22,13 @@
             "negative_distortion": 1.0
         },
         "negative_sampling_distribution":{
-             "func": "out_degree_distribution"
+             "func": "in_degree_distribution"
          }
     },
     "main_loop":{
         "get_next": {
             "func": "unweighted_get_one",
-            "input_file": "dolphins_40_nw_dynamic",
+            "input_file": "amherst_1000_nw_dynamic",
             "is_directed": false
         },
         "new_embedding":{
@@ -52,25 +52,19 @@
             }
         },
         "modify_embedding":{
-            "func": "directly_modify",
-            "batch_strategy":{
-                "func": "edges_delta_sampling"
-            },
-            "batch_size": 100,
-            "learn_rate": 0.003,
-            "optimizer": "AdamOptimizer",
-            "lambda": 0.1,
-            "alpha": 0.1,
-            "epoch_num": 10001
+            "func": "alternate_parallel",
+            "lambda": 0.001,
+            "alpha": 0.001,
+            "epoch_num": 3
         }
     },
     "metrics":[
         {
             "func": "classification",
             "classification_func": "logistic",
-            "ground_truth": "dolphins_flag.dat",
+            "ground_truth": "amherst_flag.dat",
             "test_size": 0.3,
-            "times": 10
+            "times": 5
         }
     ]
 
