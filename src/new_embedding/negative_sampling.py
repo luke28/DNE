@@ -107,8 +107,8 @@ class NodeEmbedding(object):
                 self.train_step.run({self.labels_in : batch_labels_in, self.labels_out : batch_labels_out})
                 if (i % 100 == 0):
                     loss = self.loss.eval({self.labels_in : batch_labels_in, self.labels_out : batch_labels_out})
-                    if (i % 1000 == 0):
-                        print(loss)
+                    #if (i % 1000 == 0):
+                    #    print(loss)
                     if abs(loss - pre) < self.tol:
                         break
                     else:

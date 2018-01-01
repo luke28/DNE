@@ -1,0 +1,72 @@
+{
+    "num_nodes": 40,
+    "load_data": {
+        "func": "load_unweighted_digraph",
+        "is_directed": false,
+        "network_file": "dolphins_40_nw_init"
+    },
+    "init_train":{
+        "batch_strategy":{
+            "func": "weighted_edges_sampling"
+        },
+        "embedding_model":{
+            "func": "line",
+            "num_nodes": 40,
+            "batch_size": 100,
+            "learn_rate": 0.003,
+            "embedding_size": 10,
+            "loss_func": "cross_entropy",
+            "optimizer": "AdamOptimizer",
+            "neighbor_size": 1,
+            "num_sampled": 4,
+            "negative_distortion": 1.0
+        },
+        "negative_sampling_distribution":{
+             "func": "out_degree_distribution"
+         }
+    },
+    "main_loop":{
+        "get_next": {
+            "func": "unweighted_get_one",
+            "input_file": "dolphins_40_nw_dynamic",
+            "is_directed": false
+        },
+        "new_embedding":{
+            "batch_strategy":{
+                "func": "weighted_new_node_sampling"
+            },
+            "embedding_model":{
+                "func": "negative_sampling",
+                "batch_size": 100,
+                "learn_rate": 0.003,
+                "optimizer": "AdamOptimizer",
+                "neighbor_size": 1,
+                "num_sampled": 4,
+                "negative_distortion": 1.0
+            },
+            "in_negative_sampling_distribution":{
+                "func": "in_degree_distribution"
+            },
+            "out_negative_sampling_distribution":{
+                "func": "out_degree_distribution"
+            }
+        },
+        "modify_embedding":{
+            "func": "alternate_parallel",
+            "lambda": 0.001,
+            "alpha": 0.001,
+            "epoch_num": 5
+
+        }
+    },
+    "metrics":[
+        {
+            "func": "classification",
+            "classification_func": "logistic",
+            "ground_truth": "dolphins_flag.dat",
+            "test_size": 0.3,
+            "times": 10
+        }
+    ]
+
+}
