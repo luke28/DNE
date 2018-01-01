@@ -60,8 +60,8 @@ class ModifyEmbedding(object):
                 self.train_step.run({self.idx_w : batch_idx_w, self.idx_c : batch_idx_c, self.delta : batch_delta})
                 if (i % 100 == 0):
                     loss = self.loss.eval({self.idx_w : batch_idx_w, self.idx_c : batch_idx_c, self.delta : batch_delta})
-                    if (i % 1000 == 0):
-                        print(loss)
+                    #if (i % 1000 == 0):
+                    #    print(loss)
                     if abs(loss - pre) < self.tol:
                         break
                     else:

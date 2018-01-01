@@ -3,6 +3,9 @@ import tensorflow as tf
 import math
 import sys
 from modify_embedding.calculate_optima import CalculateOptima as co
+from multiprocessing import Pool
+from threading import Thread
+import time
 import datetime
 
 class ModifyEmbedding(object):
@@ -42,24 +45,36 @@ class ModifyEmbedding(object):
             self.w_delta[u] = np.zeros(self.w_init[u].shape, dtype = np.float64)
             self.c_delta[u] = np.zeros(self.c_init[u].shape, dtype = np.float64)
 
-    def optimize(self, x_, c_, w_, delta_c_, lbd_):
-        h = co(x_, c_, w_, delta_c_, lbd_)
-        return h.train()
 
     def train(self):
-        print("modify embedding: ")
         delta_w = [None] * self.num_nodes
         delta_c = [None] * self.num_nodes
+        def optimize_w(u):
+            h = co(self.w_x[u], self.w_init[u], self.w[u], self.w_delta[u], self.lbd)
+            delta_w[u] = h.train()
+        def optimize_c(u):
+            h = co(self.c_x[u], self.c_init[u], self.c[u], self.c_delta[u], self.alpha)
+            delta_c[u] = h.train()
+        print("modify embedding: ")
         s = np.zeros([self.embedding_size])
         out_w = np.copy(self.w)
         out_c = np.copy(self.c)
+        processes_w = [None] * self.num_nodes
+        processes_c = [None] * self.num_nodes
+
         for _ in xrange(self.epoch_num):
+            for i in xrange(self.num_nodes):
+                processes_w[i] = Thread(target = optimize_w, args = (i, ))
+                processes_c[i] = Thread(target = optimize_c, args = (i, ))
             s.fill(0)
             st = datetime.datetime.now()
-            for u in self.G:
-                delta_w[u] = self.optimize(self.w_x[u], self.w_init[u], self.w[u], self.w_delta[u], self.lbd)
+            for p in processes_w:
+                p.start()
+            for p in processes_w:
+                p.join()
             ed = datetime.datetime.now()
             print ed - st
+
             for u in self.G:
                 np.add(s, delta_w[u], out = s)
                 np.add(out_w[u], delta_w[u], out = out_w[u])
@@ -72,8 +87,11 @@ class ModifyEmbedding(object):
             if abs(delta_mean) < self.tol:
                 break
             s.fill(0)
+            for p in processes_c:
+                p.start()
+            for p in processes_c:
+                p.join()
             for u in self.G:
-                delta_c[u] = self.optimize(self.c_x[u], self.c_init[u], self.c[u], self.c_delta[u], self.alpha)
                 np.add(s, delta_c[u], out = s)
                 np.add(out_c[u], delta_c[u], out = out_c[u])
             for u in self.G:
