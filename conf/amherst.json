@@ -1,0 +1,104 @@
+{
+    "network_file": "edges_amherst.txt",
+    "num_nodes": 2235,
+    "init_radius": 1000,
+    "scaling_radius": 3.0,
+    "radius_min": 0.01,
+    "radius_max": 0.25,
+    "embedding_model":{
+        "func": "weighted_embedding",
+        "iteration": 6001,
+        "batch_func": "sequential_weighted",
+        "batch_params":{
+            "contain_self": true
+        },
+        "batch_size": 1000,
+        "learn_rate": 0.003,
+        "embedding_size": 64,
+        "loss_func": "cross_entropy",
+        "optimizer": "AdamOptimizer"
+    },
+    "extract_hierarchy_model":{
+        "func": "real_tree",
+        "file_path": "tree_amherst"
+    },
+    "get_network_hierarchy":{
+        "sim_method": "common_neighbor_sim"
+    },
+    "transfer_embeddings":{
+        "func": "cosine_distance",
+        "iteration": 6001,
+        "optimizer": "AdamOptimizer",
+        "embedding_size": 64,
+        "learn_rate": 0.001,
+        "clip_min": 0.000000001,
+        "lambda": 0.2,
+        "theta": 3
+    },
+    "metric_function":[
+        {
+            "metric_func": "classification",
+            "classification_func": "logistic",
+            "ground_truth": "flag_amherst.txt",
+            "test_size": 0.1,
+            "times": 10
+        },
+        {
+            "metric_func": "classification",
+            "classification_func": "logistic",
+            "ground_truth": "flag_amherst.txt",
+            "test_size": 0.2,
+            "times": 10
+        },
+        {
+            "metric_func": "classification",
+            "classification_func": "logistic",
+            "ground_truth": "flag_amherst.txt",
+            "test_size": 0.3,
+            "times": 10
+        },
+        {
+            "metric_func": "classification",
+            "classification_func": "logistic",
+            "ground_truth": "flag_amherst.txt",
+            "test_size": 0.4,
+            "times": 10
+        },
+        {
+            "metric_func": "classification",
+            "classification_func": "logistic",
+            "ground_truth": "flag_amherst.txt",
+            "test_size": 0.5,
+            "times": 10
+        },
+        {
+            "metric_func": "classification",
+            "classification_func": "logistic",
+            "ground_truth": "flag_amherst.txt",
+            "test_size": 0.6,
+            "times": 10
+        },
+        {
+            "metric_func": "classification",
+            "classification_func": "logistic",
+            "ground_truth": "flag_amherst.txt",
+            "test_size": 0.7,
+            "times": 10
+        },
+        {
+            "metric_func": "classification",
+            "classification_func": "logistic",
+            "ground_truth": "flag_amherst.txt",
+            "test_size": 0.8,
+            "times": 10
+        },
+        {
+            "metric_func": "classification",
+            "classification_func": "logistic",
+            "ground_truth": "flag_amherst.txt",
+            "test_size": 0.9,
+            "times": 10
+        }
+    ]
+
+}

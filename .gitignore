@@ -1,5 +1,6 @@
 src/main_old.py
 src/out
+*.swp
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

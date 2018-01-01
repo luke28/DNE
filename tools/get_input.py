@@ -14,6 +14,8 @@ from operator import itemgetter
 import collections
 
 FILE_PATH = os.path.dirname(os.path.abspath(__file__))
+FATHER_PATH = os.path.join(FILE_PATH, '..')
+DATA_PATH = os.path.join(FATHER_PATH, 'data')
 
 
 
@@ -23,10 +25,9 @@ def main():
     parser.add_argument('--n', type = int, required = True)
     parser.add_argument('--self_loop', type = str, default = "yes")
     args = parser.parse_args()
-    args.input_file = os.path.join(FILE_PATH, args.input_file)
-    print(FILE_PATH)
+    args.input_file = os.path.join(DATA_PATH, args.input_file)
     #flag_file = os.path.join(FILE_PATH, args.input_file + "_flag.dat")
-    nw_file = os.path.join(FILE_PATH, args.input_file + "_nw.dat")
+    nw_file = os.path.join(DATA_PATH, args.input_file + "_nw.dat")
     n = args.n
     m = 0
 
@@ -77,8 +78,8 @@ def main():
     init_flag_file = os.path.join(FILE_PATH, args.input_file + "_" + str(n) + "_flag_init")
     dynamic_flag_file = os.path.join(FILE_PATH, args.input_file + "_" + str(n) + "_flag_dynamic")
     '''
-    init_nw_file = os.path.join(FILE_PATH, args.input_file + "_" + str(n) + "_nw_init")
-    dynamic_nw_file = os.path.join(FILE_PATH, args.input_file + "_" + str(n) + "_nw_dynamic")
+    init_nw_file = os.path.join(DATA_PATH, args.input_file + "_" + str(n) + "_nw_init")
+    dynamic_nw_file = os.path.join(DATA_PATH, args.input_file + "_" + str(n) + "_nw_dynamic")
 
     with open(init_nw_file, "w") as f:
         f.write(str(n) + "\n")
