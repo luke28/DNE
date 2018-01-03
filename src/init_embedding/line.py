@@ -14,6 +14,7 @@ class NodeEmbedding(object):
         self.negative_distortion = params["negative_distortion"]
         # self.num_sampled = max(1, int(params["num_sampled"] * self.num_nodes))
         self.num_sampled = params["num_sampled"]
+        self.epoch_num = params["epoch_num"]
         #print self.num_sampled
         #print self.num_nodes
 
@@ -58,12 +59,12 @@ class NodeEmbedding(object):
 
             #self.train_step = tf.train.AdamOptimizer(self.learnRate).minimize(self.cross_entropy)
 
-    def train(self, get_batch, epoch_num = 10001, save_path = None):
+    def train(self, get_batch, save_path = None):
         print("neural embedding: ")
         with tf.Session(graph = self.tensor_graph) as sess:
             sess.run(tf.global_variables_initializer())
             pre = float('inf')
-            for i in xrange(epoch_num):
+            for i in xrange(self.epoch_num):
                 batch_nodes, batch_y = get_batch(self.batch_size)
                 self.train_step.run({self.inputs : batch_nodes, self.labels : batch_y})
                 if (i % 100 == 0):

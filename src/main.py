@@ -18,11 +18,6 @@ from utils.data_handler import DataHandler as dh
 
 FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 
-def metric(embeddings, params):
-    for metric in params:
-        res = getattr(Metric, metric["func"])(embeddings, metric)
-        print res
-    return res
 
 
 def main():
@@ -34,11 +29,27 @@ def main():
     args = parser.parse_args()
     params = dh.load_json_file(os.path.join(CONF_PATH, args.conf + ".json"))
 
+    metric_path = os.path.join(RES_PATH, args.conf)
+    if os.path.exists(metric_path) == False:
+        os.mkdir(metric_path)
+    metric_path = os.path.join(metric_path, dh.get_time_str() + "_metric")
+
+    def metric(embeddings):
+        for metric in params["metrics"]:
+            res = getattr(Metric, metric["func"])(embeddings, metric)
+            dh.append_to_file(metric_path, str(res) + "\n")
+
     if args.operation == "all":
-        G, embeddings, weights = __import__("init." + params["init"]["func"], fromlist = ["init"]).init(params["init"], metric, params["metrics"])
-        __import__("dynamic_loop." + params["main_loop"]["func"], fromlist = ["dynamic_loop"]).loop(params["main_loop"], G, embeddings, weights, metric, params["metrics"])
+        G, embeddings, weights = __import__(
+                "init." + params["init"]["func"],
+                fromlist = ["init"]
+                ).init(params["init"], metric)
+        __import__(
+                "dynamic_loop." + params["main_loop"]["func"],
+                fromlist = ["dynamic_loop"]
+                ).loop(params["main_loop"], G, embeddings, weights, metric)
     elif args.operation == "init":
-        G, embeddings, weights = __import__("init." + params["init"]["func"], fromlist = ["init"]).init(params["init"], metric, params["metrics"])
+        G, embeddings, weights = __import__("init." + params["init"]["func"], fromlist = ["init"]).init(params["init"], metric)
     elif args.operation == "draw":
         pass
     else:
