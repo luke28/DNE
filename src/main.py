@@ -38,6 +38,7 @@ def main():
         for metric in params["metrics"]:
             res = getattr(Metric, metric["func"])(embeddings, metric)
             dh.append_to_file(metric_path, str(res) + "\n")
+            print res
 
     if args.operation == "all":
         G, embeddings, weights = __import__(
