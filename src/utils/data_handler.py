@@ -5,6 +5,7 @@ import re
 import json
 import numpy as np
 import math
+from datetime import datetime
 from queue import Queue
 
 class DataHandler(object):
@@ -65,25 +66,7 @@ class DataHandler(object):
                     continue
                 G.add_edge(int(items[0]), int(items[1]))
         return G
-
-    @staticmethod
-    def load_tree(file_path):
-        G = nx.DiGraph()
-        n, m = None, None
-        with open(file_path, "r") as f:
-            for line in f:
-                line = line.strip()
-                if len(line) == 0:
-                    continue
-                items = line.split()
-                if len(items) != 2:
-                    continue
-                if n is None:
-                    n, m = int(items[0]), int(items[1])
-                else:
-                    G.add_edge(int(items[0]), int(items[1]))
-        return G, n, m
-
+    
     @staticmethod
     def load_fea(file_path):
         X = []
@@ -121,13 +104,6 @@ class DataHandler(object):
         return mat_ret
 
     @staticmethod
-    def cal_euclidean_distance(x):
-        X = np.array(x)
-        a = np.square(np.linalg.norm(X, axis = 1, keepdims = True))
-        D = -2 * np.dot(X, np.transpose(X)) + a + np.transpose(a)
-        return D
-
-    @staticmethod
     def symlink(src, dst):
         try:
             os.symlink(src, dst)
@@ -142,6 +118,10 @@ class DataHandler(object):
             s = f.read()
             s = re.sub('\s',"", s)
         return json.loads(s)
+
+    @staticmethod
+    def get_time_str():
+        return datetime.now().strftime("%Y-%m-%d-%H:%M:%S.%f")
 
     @staticmethod
     def append_to_file(file_path, s):

@@ -21,7 +21,8 @@
                 "optimizer": "AdamOptimizer",
                 "neighbor_size": 1,
                 "num_sampled": 4,
-                "negative_distortion": 1.0
+                "negative_distortion": 1.0,
+                "epoch_num": 30000
             },
             "negative_sampling_distribution":{
                 "func": "out_degree_distribution"
@@ -48,7 +49,7 @@
                 "neighbor_size": 1,
                 "num_sampled": 4,
                 "negative_distortion": 1.0,
-                "epoch_num": 30001
+                "epoch_num": 10001
             },
             "in_negative_sampling_distribution":{
                 "func": "in_degree_distribution"

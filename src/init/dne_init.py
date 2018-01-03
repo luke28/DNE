@@ -7,7 +7,7 @@ import time
 from utils.env import *
 from utils.data_handler import DataHandler as dh
 
-def init(params, metric, params_metric):
+def init(params, metric):
     # load graph structure
     def load_data(params):
         params["network_file"] = os.path.join(DATA_PATH, params["network_file"])
@@ -29,11 +29,11 @@ def init(params, metric, params_metric):
 
         bs = module_batch(G, params["batch_strategy"])
         ne = module_embedding(params["embedding_model"], unigrams)
-        embeddings, weights = ne.train(bs.get_batch, 10001)
+        embeddings, weights = ne.train(bs.get_batch)
         return embeddings, weights
 
     G = load_data(params["load_data"])
     embeddings, weights = init_train(G, params["init_train"])
-    metric(embeddings, params_metric)
+    metric(embeddings)
     return G, embeddings, weights
 
