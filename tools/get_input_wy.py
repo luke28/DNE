@@ -44,7 +44,7 @@ def main():
             if int(items[1]) < n and int(items[0]) < n:
                 G_init.append(items)
             else:
-                it = str(max(int(items[0]), int(items[1])))
+                it = max(int(items[0]), int(items[1]))
                 if it not in G_dynamic:
                     G_dynamic[it] = [items]
                 else:
@@ -54,29 +54,11 @@ def main():
         for i in xrange(n):
             G_init.append((str(i), str(i)))
         for i in xrange(n, m + 1):
-            if str(i) not in G_dynamic:
-                G_dynamic[str(i)] = [(str(i), str(i))]
+            if i not in G_dynamic:
+                G_dynamic[i] = [(str(i), str(i))]
             else:
-                G_dynamic[str(i)].append((str(i), str(i)))
-    '''
-    flags_init = {}
-    flags_dynamic = {}
-    with open(flag_file, "r") as f:
-        for line in f:
-            line = line.strip()
-            if len(line) == 0:
-                continue
-            items = line.split()
-            if (len(items) != 2):
-                continue
-            if int(items[0]) < n:
-                flags_init[items[0]] = items[1]
-            else:
-                flags_dynamic[items[0]] = items[1]
-
-    init_flag_file = os.path.join(FILE_PATH, args.input_file + "_" + str(n) + "_flag_init")
-    dynamic_flag_file = os.path.join(FILE_PATH, args.input_file + "_" + str(n) + "_flag_dynamic")
-    '''
+                G_dynamic[i].append((str(i), str(i)))
+    
     init_nw_file = os.path.join(args.output_dir, args.data_name + "_" + str(n) + "_nw_init")
     dynamic_nw_file = os.path.join(args.output_dir, args.data_name + "_" + str(n) + "_nw_dynamic")
 
@@ -92,14 +74,6 @@ def main():
             for v, w in s:
                 f.write(str(v) + "\t" + str(w) + "\n")
             f.write("\n")
-    '''
-    with open(init_flag_file, "w") as f:
-        for u in flags_init:
-            f.write(str(u) + "\t" + str(flags_init[u]) + "\n")
-    with open(dynamic_flag_file, "w") as f:
-        for u in flags_dynamic:
-            f.write(str(u) + "\t" + str(flags_dynamic[u]) + "\n")
-    '''
 
 
 if __name__ == "__main__":

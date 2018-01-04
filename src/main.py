@@ -32,7 +32,8 @@ def main():
     metric_path = os.path.join(RES_PATH, args.conf)
     if os.path.exists(metric_path) == False:
         os.mkdir(metric_path)
-    metric_path = os.path.join(metric_path, dh.get_time_str() + "_metric")
+    output_path = os.path.join(metric_path, dh.get_time_str())
+    metric_path = output_path + "_metric"
 
     def metric(embeddings):
         for metric in params["metrics"]:
@@ -44,11 +45,11 @@ def main():
         G, embeddings, weights = __import__(
                 "init." + params["init"]["func"],
                 fromlist = ["init"]
-                ).init(params["init"], metric)
+                ).init(params["init"], metric, output_path)
         __import__(
                 "dynamic_loop." + params["main_loop"]["func"],
                 fromlist = ["dynamic_loop"]
-                ).loop(params["main_loop"], G, embeddings, weights, metric)
+                ).loop(params["main_loop"], G, embeddings, weights, metric, output_path)
     elif args.operation == "init":
         G, embeddings, weights = __import__("init." + params["init"]["func"], fromlist = ["init"]).init(params["init"], metric)
     elif args.operation == "draw":
