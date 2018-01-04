@@ -8,7 +8,6 @@ import datetime
 class ModifyEmbedding(object):
     def __init__(self, params, w, c, G):
         self.num_nodes, self.embedding_size = w.shape
-        self.tol = params["tol"] if "tol" in params else 0.01
         self.epoch_num = params["epoch_num"]
         self.lbd = params["lambda"]
         self.alpha = params["alpha"]
@@ -39,8 +38,10 @@ class ModifyEmbedding(object):
             self.c_x[u] = np.array(self.c_x[u])
             self.w_init[u] = np.array(self.w_init[u])
             self.c_init[u] = np.array(self.c_init[u])
-            self.w_delta[u] = np.zeros(self.w_init[u].shape, dtype = np.float64)
-            self.c_delta[u] = np.zeros(self.c_init[u].shape, dtype = np.float64)
+            self.w_delta[u] = np.zeros(self.w_init[u].shape, dtype = np.float32)
+            self.c_delta[u] = np.zeros(self.c_init[u].shape, dtype = np.float32)
+
+        self.
 
     def optimize(self, x_, c_, w_, delta_c_, lbd_):
         h = co(x_, c_, w_, delta_c_, lbd_)
