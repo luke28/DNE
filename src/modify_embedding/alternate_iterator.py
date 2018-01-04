@@ -2,13 +2,12 @@ import numpy as np
 import tensorflow as tf
 import math
 import sys
-from modify_embedding.optimize.calculate_optima import CalculateOptima as co
 import datetime
 
 class ModifyEmbedding(object):
     def __init__(self, params, w, c, G):
         self.num_nodes, self.embedding_size = w.shape
-        self.tol = params["tol"] if "tol" in params else 0.01
+        params["optimizer"]["embedding_size"] = self.embedding_size
         self.epoch_num = params["epoch_num"]
         self.lbd = params["lambda"]
         self.alpha = params["alpha"]
@@ -39,49 +38,55 @@ class ModifyEmbedding(object):
             self.c_x[u] = np.array(self.c_x[u])
             self.w_init[u] = np.array(self.w_init[u])
             self.c_init[u] = np.array(self.c_init[u])
-            self.w_delta[u] = np.zeros(self.w_init[u].shape, dtype = np.float64)
-            self.c_delta[u] = np.zeros(self.c_init[u].shape, dtype = np.float64)
+            self.w_delta[u] = np.zeros(self.w_init[u].shape, dtype = np.float32)
+            self.c_delta[u] = np.zeros(self.c_init[u].shape, dtype = np.float32)
 
-    def optimize(self, x_, c_, w_, delta_c_, lbd_):
-        h = co(x_, c_, w_, delta_c_, lbd_)
-        return h.train()
+        op = __import__(
+                "modify_embedding.optimize." + params["optimizer"]["func"],
+                fromlist = ["modify_embedding", "optimize"]).CalculateOptima
+        self.w_optimizer = op(
+                params["optimizer"],
+                self.w_x,
+                self.w_init,
+                self.w,
+                self.w_delta,
+                self.lbd)
+        self.c_optimizer = op(
+                params["optimizer"],
+                self.c_x,
+                self.c_init,
+                self.c,
+                self.c_delta,
+                self.alpha)
 
     def train(self):
         print("modify embedding: ")
         delta_w = [None] * self.num_nodes
         delta_c = [None] * self.num_nodes
-        s = np.zeros([self.embedding_size])
-        out_w = np.copy(self.w)
-        out_c = np.copy(self.c)
         for _ in xrange(self.epoch_num):
-            s.fill(0)
             st = datetime.datetime.now()
-            for u in self.G:
-                delta_w[u] = self.optimize(self.w_x[u], self.w_init[u], self.w[u], self.w_delta[u], self.lbd)
+            delta_w = self.w_optimizer.train(self.w_init, self.w_delta)
             ed = datetime.datetime.now()
+            print "time:"
             print ed - st
+
             for u in self.G:
-                np.add(s, delta_w[u], out = s)
-                np.add(out_w[u], delta_w[u], out = out_w[u])
+                np.add(self.w[u], delta_w[u], out = self.w[u])
             for u in self.G:
                 for c, idx in self.w_id[u].items():
                     np.add(self.c_init[c][idx], delta_w[u], out = self.c_init[c][idx])
                     np.add(self.c_delta[c][idx], delta_w[u], out = self.c_delta[c][idx])
-            delta_mean = np.mean(s) / self.num_nodes
-            #print abs(delta_mean)
-            if abs(delta_mean) < self.tol:
-                break
-            s.fill(0)
+
+
+            st = datetime.datetime.now()
+            delta_c = self.c_optimizer.train(self.c_init, self.c_delta)
+            ed = datetime.datetime.now()
+            print "time:"
+            print ed - st
             for u in self.G:
-                delta_c[u] = self.optimize(self.c_x[u], self.c_init[u], self.c[u], self.c_delta[u], self.alpha)
-                np.add(s, delta_c[u], out = s)
-                np.add(out_c[u], delta_c[u], out = out_c[u])
+                np.add(self.c[u], delta_c[u], out = self.c[u])
             for u in self.G:
                 for w, idx in self.c_id[u].items():
                     np.add(self.w_init[w][idx], delta_c[u], out = self.w_init[w][idx])
                     np.add(self.w_delta[w][idx], delta_c[u], out = self.w_delta[w][idx])
-            delta_mean = np.mean(s) / self.num_nodes
-            #print abs(delta_mean)
-            if abs(delta_mean) < self.tol:
-                break
-        return out_w, out_c
+        return self.w, self.c
