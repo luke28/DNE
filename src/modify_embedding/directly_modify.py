@@ -5,7 +5,6 @@ import sys
 
 
 class ModifyEmbedding(object):
-
     def __init__(self, params, w, c, G):
         self.num_nodes, self.embedding_size = w.shape
         self.batch_size = params["batch_size"]
