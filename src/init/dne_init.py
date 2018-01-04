@@ -7,7 +7,7 @@ import time
 from utils.env import *
 from utils.data_handler import DataHandler as dh
 
-def init(params, metric):
+def init(params, metric, output_path):
     # load graph structure
     def load_data(params):
         params["network_file"] = os.path.join(DATA_PATH, params["network_file"])
