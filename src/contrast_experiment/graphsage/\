@@ -259,8 +259,8 @@ def train(train_data, params, num_nodes=None, metric=None, test_data=None):
 
     # Initialize session
     sess = tf.Session(config=config)
-    merged = tf.summary.merge_all()
-    summary_writer = tf.summary.FileWriter(log_dir(params['output_path']), sess.graph)
+    #merged = tf.summary.merge_all()
+    #summary_writer = tf.summary.FileWriter(log_dir(params['output_path']), sess.graph)
      
     # Init variables
     sess.run(tf.global_variables_initializer(), feed_dict={adj_info_ph: minibatch.adj})
@@ -404,17 +404,18 @@ def train(train_data, params, num_nodes=None, metric=None, test_data=None):
             print("Walk time: ", walk_time)
             print("Train time: ", train_time)
 
-    # free variable space
-    print("free variable space")
-    tf.get_default_graph().clear_collection(tf.GraphKeys.GLOBAL_VARIABLES)
-    tf.reset_default_graph()
-    sess.close()
+        # free variable space
+        print("free variable space")
+        tf.get_default_graph().clear_collection(tf.GraphKeys.GLOBAL_VARIABLES)
+        tf.reset_default_graph()
+        sess.close()
 
 def dynamic_test(init_file, dynamic_file, feats, id_map, flag_file, params, metric):
     [G, walks, class_map, node_flag, flag_no] = init_G(init_file, flag_file, id_map, feats)
     train([G, feats, id_map, walks, class_map], params, G.number_of_nodes(), metric)
     change_G_status(G)
     print("first test finished!, enter to continue")
+    raw_input()
     node_edges_lst = []
     with open(dynamic_file, 'r') as infile:
         while True:
@@ -433,7 +434,7 @@ def dynamic_test(init_file, dynamic_file, feats, id_map, flag_file, params, metr
 
     edges_added = []
     none_line = 0
-    for i in range(len(node_edges_lst)):
+    for i in range(node_edges_lst):
         # add edges
         none_line += 1
         edges_added += node_edges_lst[i]
@@ -448,6 +449,7 @@ def dynamic_test(init_file, dynamic_file, feats, id_map, flag_file, params, metr
             train([G, feats, id_map, walks, class_map], params, G.number_of_nodes(), metric)
             change_G_status(G)
             print("update status: "+str(G.number_of_nodes()) + "nodes, enter to continue")
+            raw_input()
 
             none_line = 0
             edges_added = []
@@ -466,7 +468,7 @@ def dynamic_test(init_file, dynamic_file, feats, id_map, flag_file, params, metr
 
 def train_main(params):
     print("generate Training data...")
-    generate_traindata_for_SAGE(params['nwFile'], params['flagFile'], params['ratio'], params['feature_size'], params['dataname'], params['self_loop'])
+    generate_traindata_for_SAGE(params['nwFile'], params['flagFile'], params['ratio'], params['feature_size'], params['dataname'], params['output_path'], params['self_loop'])
     print("Loading Training Data...")
     train_data = load_data(FLAGS.train_prefix, load_walks=True)
     print("Done Loading Training Data...")
@@ -507,19 +509,17 @@ def sage_main(params, metric=None):
         FLAGS.validation_batch_size = params['validation_batch_size']
         FLAGS.max_total_steps = params['max_total_steps']
         FLAGS.validate_iter = params['validate_iter']
-        FLAGS.dim1 = params['dim1']
-        FLAGS.dim2 = params['dim2']
 
         # train model
         train_main(params)
 
-        #tf.app.run(main=train_main, argv=params)
+        tf.app.run(main=train_main, argv=params)
 
     else:
         print("==Testing Model==")
         FLAGS.isTrain = params['isTrain']
         FLAGS.train_prefix = params['train_prefix']
-        FLAGS.testfile_prefix = params['test_prefix']
+        FLAGS.testfile_prefix = params['testfile_prefix']
         FLAGS.model = params['model']
         FLAGS.save_embeddings = params['save_embeddings']
         FLAGS.batch_size = params['batch_size']
@@ -530,6 +530,4 @@ def sage_main(params, metric=None):
         FLAGS.dim1 = params['dim1']
         FLAGS.dim2 = params['dim2']
 
-        # test model
-        test_main(params, metric)
-        #tf.app.run(main=test_main, argv=[params, metric])
+        tf.app.run(main=test_main, argv=[params,metric])

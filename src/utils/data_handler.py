@@ -6,7 +6,7 @@ import json
 import numpy as np
 import math
 from datetime import datetime
-from queue import Queue
+from Queue import Queue
 
 class DataHandler(object):
     @staticmethod

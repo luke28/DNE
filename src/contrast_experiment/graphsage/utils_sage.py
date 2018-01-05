@@ -9,6 +9,7 @@ import collections
 
 import networkx as nx
 from networkx.readwrite import json_graph
+from utils.env import *
 version_info = map(int, nx.__version__.split('.'))
 major = version_info[0]
 minor = version_info[1]
@@ -81,7 +82,7 @@ def load_data(prefix, normalize=True, load_walks=False):
 
     return G, feats, id_map, walks, class_map
 
-def generate_traindata_for_SAGE(nwFile, flagFile, ratio, feature_size, dataname, outputPath, self_loop='yes'):
+def generate_traindata_for_SAGE(nwFile, flagFile, ratio, feature_size, dataname, self_loop='yes'):
     id_max = 0
     id_val = 0
     id_train = 0
@@ -161,12 +162,12 @@ def generate_traindata_for_SAGE(nwFile, flagFile, ratio, feature_size, dataname,
     walks = run_random_walks(G_part, nodes)
     
     #save file
-    dataname = dataname+"_"+str(id_val)+"_"+str(ratio)
-    Gpath = str(outputPath)+'/'+str(dataname)+'-G.json'
-    id_map_path=str(outputPath)+'/'+str(dataname)+'-id_map.json'
-    class_map_path=str(outputPath)+'/'+str(dataname)+'-class_map.json'
-    feats_path=str(outputPath)+'/'+str(dataname)+'-feats.npy'
-    walks_path=str(outputPath)+'/'+str(dataname)+'-walks.txt'
+    dataname = dataname+"_"+str(id_val)+"_"+str(ratio)+"_nw"
+    Gpath = DATA_PATH+'/'+str(dataname)+'-G.json'
+    id_map_path=DATA_PATH+'/'+str(dataname)+'-id_map.json'
+    class_map_path=DATA_PATH+'/'+str(dataname)+'-class_map.json'
+    feats_path=DATA_PATH+'/'+str(dataname)+'-feats.npy'
+    walks_path=DATA_PATH+'/'+str(dataname)+'-walks.txt'
 
     with open(Gpath, 'w') as outfile:
         outfile.write(json.dumps(json_graph.node_link_data(G)))
