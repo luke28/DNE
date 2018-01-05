@@ -51,7 +51,7 @@ def main():
                 fromlist = ["dynamic_loop"]
                 ).loop(params["main_loop"], G, embeddings, weights, metric, output_path)
     elif args.operation == "init":
-        G, embeddings, weights = __import__("init." + params["init"]["func"], fromlist = ["init"]).init(params["init"], metric)
+        G, embeddings, weights = __import__("init." + params["init"]["func"], fromlist = ["init"]).init(params["init"], metric, output_path)
     elif args.operation == "draw":
         pass
     else:
