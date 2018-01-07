@@ -19,14 +19,20 @@ assert (major <= 1) and (minor <= 11), "networkx major version > 1.11"
 seed=123
 np.random.seed(seed)
 
-#WALK_LEN=5
-#N_WALKS=50
-N_WALKS=5
-WALK_LEN=2
+WALK_LEN=5
+N_WALKS=50
+#N_WALKS=5
+#WALK_LEN=2
 
 def load_data(prefix, normalize=True, load_walks=False):
+    print("in load data")
+    print(prefix+"-G.json")
     G_data = json.load(open(prefix + "-G.json"))
     G = json_graph.node_link_graph(G_data)
+    print("in load data func")
+    print(len([n for n in G.nodes() if not G.node[n]['test'] and not G.node[n]['val']]), 'train nodes')
+    print(len([n for n in G.nodes() if G.node[n]['test'] or G.node[n]['val']]), 'test nodes')
+    raw_input()
     if isinstance(G.nodes()[0], int):
         conversion = lambda n : int(n)
     else:
@@ -56,6 +62,10 @@ def load_data(prefix, normalize=True, load_walks=False):
             G.remove_node(node)
             broken_count += 1
     print("Removed {:d} nodes that lacked proper annotations due to networkx versioning issues".format(broken_count))
+    print("in load data func")
+    print(len([n for n in G.nodes() if not G.node[n]['test'] and not G.node[n]['val']]), 'train nodes')
+    print(len([n for n in G.nodes() if G.node[n]['test'] or G.node[n]['val']]), 'test nodes')
+    raw_input()
 
     ## Make sure the graph has edge train_removed annotations
     ## (some datasets might already have this..)
@@ -82,7 +92,7 @@ def load_data(prefix, normalize=True, load_walks=False):
 
     return G, feats, id_map, walks, class_map
 
-def generate_traindata_for_SAGE(nwFile, flagFile, ratio, feature_size, dataname, self_loop='yes'):
+def generate_traindata_for_SAGE(nwFile, flagFile, ratio_train_val, ratio_train, feature_size, dataname, self_loop='yes'):
     id_max = 0
     id_val = 0
     id_train = 0
@@ -115,8 +125,11 @@ def generate_traindata_for_SAGE(nwFile, flagFile, ratio, feature_size, dataname,
                 continue
             items = line.split()
             if len(items) == 1:
-                id_val = int(int(items[0])*ratio)
-                id_train = int(id_val*ratio)
+                id_train_val = int(int(items[0])*ratio_train_val)
+                id_train = int(id_train_val*ratio_train)
+                print("id_train_val:"+str(id_train_val))
+                print("id_train:" + str(id_train))
+                raw_input()
                 continue
             if len(items) != 2:
                 continue
@@ -132,7 +145,7 @@ def generate_traindata_for_SAGE(nwFile, flagFile, ratio, feature_size, dataname,
                     id_map_unorder[str(n)] = fea_vec
                     if n <= id_train:
                         G.add_node(n, test=False, feature=fea_vec, val=False, label=label_vec)
-                    elif n <= id_val:
+                    elif n <= id_train_val:
                         G.add_node(n, test=False, feature=fea_vec, val=True, label=label_vec)
                     else:
                         G.add_node(n, test=True, feature=fea_vec, val=False, label=label_vec)
@@ -161,14 +174,19 @@ def generate_traindata_for_SAGE(nwFile, flagFile, ratio, feature_size, dataname,
     G_part = G.subgraph(nodes)
     walks = run_random_walks(G_part, nodes)
     
+    print("gen intput after random walks")
+    print(len([n for n in G.nodes() if not G.node[n]['test'] and not G.node[n]['val']]), 'train nodes')
+    print(len([n for n in G.nodes() if G.node[n]['test'] or G.node[n]['val']]), 'test nodes')
     #save file
-    dataname = dataname+"_"+str(id_val)+"_"+str(ratio)+"_nw"
+    dataname = dataname+"_"+str(id_val)+"_"+str(ratio_train_val)+"_nw"
     Gpath = DATA_PATH+'/'+str(dataname)+'-G.json'
     id_map_path=DATA_PATH+'/'+str(dataname)+'-id_map.json'
     class_map_path=DATA_PATH+'/'+str(dataname)+'-class_map.json'
     feats_path=DATA_PATH+'/'+str(dataname)+'-feats.npy'
     walks_path=DATA_PATH+'/'+str(dataname)+'-walks.txt'
 
+    print(Gpath)
+    raw_input()
     with open(Gpath, 'w') as outfile:
         outfile.write(json.dumps(json_graph.node_link_data(G)))
 
