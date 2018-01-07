@@ -28,7 +28,7 @@ tf.app.flags.DEFINE_boolean('log_device_placement', False,
                             """Whether to log device placement.""")
 #core params..
 flags.DEFINE_string('model', 'graphsage_mean', 'model names. See README for possible values.')  
-flags.DEFINE_float('learning_rate', 0.00001, 'initial learning rate.')
+flags.DEFINE_float('learning_rate', 0.001, 'initial learning rate.')
 flags.DEFINE_string("model_size", "small", "Can be big or small; model specific def'ns")
 flags.DEFINE_string('train_prefix', '', 'name of the object file that stores the training data. must be specified.')
 flags.DEFINE_integer('feature_size', 10, "the dim of node features")
@@ -38,7 +38,7 @@ flags.DEFINE_string('testfile_prefix', '', "the prefix of test dataset (the pref
 flags.DEFINE_integer('test_batch_size', 1, 'the test batch size of per test')
 
 # left to default values in main experiments 
-flags.DEFINE_integer('epochs', 1, 'number of epochs to train.')
+flags.DEFINE_integer('epochs', 1000, 'number of epochs to train.')
 flags.DEFINE_float('dropout', 0.0, 'dropout rate (1 - keep probability).')
 flags.DEFINE_float('weight_decay', 0.0, 'weight for l2 loss on embedding matrix.')
 flags.DEFINE_integer('max_degree', 100, 'maximum node degree.')
@@ -466,10 +466,11 @@ def dynamic_test(init_file, dynamic_file, feats, id_map, flag_file, params, metr
 
 def train_main(params):
     print("generate Training data...")
-    generate_traindata_for_SAGE(params['nwFile'], params['flagFile'], params['ratio'], params['feature_size'], params['dataname'], params['self_loop'])
+    generate_traindata_for_SAGE(params['nwFile'], params['flagFile'], params['ratio_train_val'], params['ratio_train'], params['feature_size'], params['dataname'], params['self_loop'])
     print("Loading Training Data...")
     train_data = load_data(FLAGS.train_prefix, load_walks=True)
     print("Done Loading Training Data...")
+    G = train_data[0]
     train(train_data, params)
 
 def test_main(params, metric):
@@ -507,8 +508,9 @@ def sage_main(params, metric=None):
         FLAGS.validation_batch_size = params['validation_batch_size']
         FLAGS.max_total_steps = params['max_total_steps']
         FLAGS.validate_iter = params['validate_iter']
-        FLAGS.dim1 = params['dim1']
-        FLAGS.dim2 = params['dim2']
+        FLAGS.dim_1 = params['dim_1']
+        FLAGS.dim_2 = params['dim_2']
+        FLAGS.epochs = params['epochs']
 
         # train model
         train_main(params)
@@ -527,8 +529,8 @@ def sage_main(params, metric=None):
         FLAGS.max_total_steps = params['max_total_steps']
         FLAGS.validate_iter = params['validate_iter']
         FLAGS.test_batch_size = params['test_batch_size']
-        FLAGS.dim1 = params['dim1']
-        FLAGS.dim2 = params['dim2']
+        FLAGS.dim_1 = params['dim_1']
+        FLAGS.dim_2 = params['dim_2']
 
         # test model
         test_main(params, metric)
