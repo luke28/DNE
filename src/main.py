@@ -11,6 +11,9 @@ import networkx as nx
 import tensorflow as tf
 import datetime
 from operator import itemgetter
+import random
+random.seed(157)
+np.random.seed(157)
 
 from utils.env import *
 from utils.metric import Metric

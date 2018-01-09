@@ -109,9 +109,12 @@ class Metric(object):
         acc /= float(params["times"])
         return acc
 
+<<<<<<< HEAD
 if __name__ == '__main__':
     X = np.random.uniform(1, 10, 16).reshape(8, 2)
     drawer = {}
     drawer['func'] = 'abc'
     draw_cnt = 1
     Metric.draw_circle_2D(X, drawer, '', 1)
+=======
+>>>>>>> 2bd17514d67c70e8d4cb3f4bc2236da4eb4b9999

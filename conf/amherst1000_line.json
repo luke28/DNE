@@ -15,7 +15,6 @@
                 "func": "weighted_edges_sampling"
             },
             "func": "line",
-            "num_nodes": 1000,
             "batch_size": 100,
             "learn_rate": 0.003,
             "embedding_size": 20,
@@ -28,44 +27,30 @@
         }
     },
     "main_loop":{
-        "func": "dne_loop",
+        "func": "whole_loop",
         "get_next": {
             "func": "unweighted_get",
             "input_file": "amherst_1000_nw_dynamic",
             "is_directed": false,
-            "num_new_nodes":200
+            "num_new_nodes": 200
         },
         "new_embedding":{
-            "batch_strategy":{
-                "func": "weighted_multi_new_node_sampling"
-            },
-            "in_negative_sampling_distribution":{
-                "func": "in_degree_distribution"
-            },
-            "out_negative_sampling_distribution":{
+            "negative_sampling_distribution":{
                 "func": "out_degree_distribution"
             },
-            "func": "multi_negative_sampling",
+            "batch_strategy":{
+                "func": "weighted_edges_sampling"
+            },
+            "func": "line",
             "batch_size": 100,
             "learn_rate": 0.003,
+            "embedding_size": 20,
+            "loss_func": "cross_entropy",
             "optimizer": "AdamOptimizer",
             "neighbor_size": 1,
             "num_sampled": 4,
             "negative_distortion": 1.0,
-            "epoch_num": 10001
-        },
-        "modify_embedding":{
-            "func": "directly_modify",
-            "batch_strategy":{
-                "func": "edges_delta_sampling"
-            },
-            "batch_size": 100,
-            "learn_rate": 0.003,
-            "optimizer": "AdamOptimizer",
-            "lambda": 0.001,
-            "alpha": 0.001,
-            "epoch_num": 20001,
-            "num_sampled": 4
+            "epoch_num": 30001
         }
     },
     "metrics":[

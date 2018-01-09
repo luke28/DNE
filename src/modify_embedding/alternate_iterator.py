@@ -44,6 +44,8 @@ class ModifyEmbedding(object):
         op = __import__(
                 "modify_embedding.optimize." + params["optimizer"]["func"],
                 fromlist = ["modify_embedding", "optimize"]).CalculateOptima
+        print "start initialize modify"
+        st = datetime.datetime.now()
         self.w_optimizer = op(
                 params["optimizer"],
                 self.w_x,
@@ -51,6 +53,9 @@ class ModifyEmbedding(object):
                 self.w,
                 self.w_delta,
                 self.lbd)
+        ed = datetime.datetime.now()
+        print ed - st
+        st = datetime.datetime.now()
         self.c_optimizer = op(
                 params["optimizer"],
                 self.c_x,
@@ -58,6 +63,8 @@ class ModifyEmbedding(object):
                 self.c,
                 self.c_delta,
                 self.alpha)
+        ed = datetime.datetime.now()
+        print ed - st
 
     def train(self):
         print("modify embedding: ")
@@ -71,11 +78,11 @@ class ModifyEmbedding(object):
             print ed - st
 
             for u in self.G:
-                np.add(self.w[u], delta_w[u], out = self.w[u])
+                np.add(self.w[u], np.reshape(delta_w[u], [-1]), out = self.w[u])
             for u in self.G:
                 for c, idx in self.w_id[u].items():
-                    np.add(self.c_init[c][idx], delta_w[u], out = self.c_init[c][idx])
-                    np.add(self.c_delta[c][idx], delta_w[u], out = self.c_delta[c][idx])
+                    np.add(self.c_init[c][idx], np.reshape(delta_w[u], [-1]), out = self.c_init[c][idx])
+                    np.add(self.c_delta[c][idx], np.reshape(delta_w[u], [-1]), out = self.c_delta[c][idx])
 
 
             st = datetime.datetime.now()
@@ -84,9 +91,9 @@ class ModifyEmbedding(object):
             print "time:"
             print ed - st
             for u in self.G:
-                np.add(self.c[u], delta_c[u], out = self.c[u])
+                np.add(self.c[u], np.reshape(delta_c[u], [-1]), out = self.c[u])
             for u in self.G:
                 for w, idx in self.c_id[u].items():
-                    np.add(self.w_init[w][idx], delta_c[u], out = self.w_init[w][idx])
-                    np.add(self.w_delta[w][idx], delta_c[u], out = self.w_delta[w][idx])
+                    np.add(self.w_init[w][idx], np.reshape(delta_c[u], [-1]), out = self.w_init[w][idx])
+                    np.add(self.w_delta[w][idx], np.reshape(delta_c[u], [-1]), out = self.w_delta[w][idx])
         return self.w, self.c
