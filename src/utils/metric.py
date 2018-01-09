@@ -53,29 +53,49 @@ class Metric(object):
         plt.close()
 
     @staticmethod
-    def draw_circle_2D(c, r, params, num_nodes = 0, file_path = 'circle.pdf'):
-        c_map = params["color_list"]
-        x = np.array(c)
-        n = len(x) # nx2
-
-        c_id = np.random.randint(0, len(c_map) - 1, size = n)
-        cValue=[c_map[id] for id in c_id]
+    def draw_circle_2D(embeddings, drawer, draw_path, draw_cnt):
+        x = embeddings[:,0]
+        y = embeddings[:,1]
+        T = np.arctan2(x, y)
 
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
 
-        #draw circle
-        for i in xrange(num_nodes, n):
-            ax.add_patch(Circle(xy=(x[i][0],x[i][1]), radius=r[i], fill=False, ec = cValue[i], alpha=1))
-        # draw scatter
-        ax.scatter(x[:, 0], x[:, 1], c = cValue, marker='x')
+        ax.scatter(embeddings[:, 0], embeddings[:, 1], c = T, alpha = 0.8, marker='o')
+        delta_x = -0.1
+        delta_y = 0.1
+        line_id = 0
+        for emb in embeddings:
+            ax.text(emb[0]+delta_x, emb[1]+delta_y, line_id, ha='center', va='bottom')
+            line_id += 1
         plt.axis('scaled')
+        plt.show()
+        #file_path = draw_path+'/'+drawer['func']+'_'+str(draw_cnt)
+        #pp = PdfPages(file_path)
+        #pp.savefig(fig)
+        #pp.close()
 
-        pp = PdfPages(file_path)
-        pp.savefig(fig)
-        pp.close()
 
+    @staticmethod
+    def multiclass_classification(X, params):
+        from sklearn.metrics import f1_score
+        from sklearn.multioutput import MultiOutputClassifier
+        from sklearn.linear_model import SGDClassifier
+        X_scaled = scale(X)
+        y = dh.load_ground_truth(os.path.join(DATA_PATH, params["ground_truth"]))
+        y = y[:len(X)]
+        for _ in xrange(params['times']):
+            X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=params['test_size'], stratify=y)
+            log = MultiOutputClassifier(SGDClassifier(loss='log'),n_jobs=2)
+            log.fit(X_train, y_train)
 
+            f1 = 0
+            print(y_test.shape)
+            for i in range(y_test.shape[1]):
+                print(y_test[:, i])
+                print(y_test[:, i])
+                f1 = f1_score(y_test[:, i], log.predict(X_test)[:, i], average='micro')
+        
     @staticmethod
     def classification(X, params):
         X_scaled = scale(X)
@@ -89,4 +109,9 @@ class Metric(object):
         acc /= float(params["times"])
         return acc
 
-
+if __name__ == '__main__':
+    X = np.random.uniform(1, 10, 16).reshape(8, 2)
+    drawer = {}
+    drawer['func'] = 'abc'
+    draw_cnt = 1
+    Metric.draw_circle_2D(X, drawer, '', 1)
