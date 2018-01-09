@@ -36,23 +36,7 @@
             "num_new_nodes":200
         },
         "new_embedding":{
-            "batch_strategy":{
-                "func": "weighted_multi_new_node_sampling"
-            },
-            "in_negative_sampling_distribution":{
-                "func": "in_degree_distribution"
-            },
-            "out_negative_sampling_distribution":{
-                "func": "out_degree_distribution"
-            },
-            "func": "multi_negative_sampling",
-            "batch_size": 100,
-            "learn_rate": 0.003,
-            "optimizer": "AdamOptimizer",
-            "neighbor_size": 1,
-            "num_sampled": 4,
-            "negative_distortion": 1.0,
-            "epoch_num": 10001
+            "func": "assign_zeros"
         },
         "modify_embedding":{
             "func": "directly_modify",
@@ -62,9 +46,9 @@
             "batch_size": 100,
             "learn_rate": 0.003,
             "optimizer": "AdamOptimizer",
-            "lambda": 0.001,
-            "alpha": 0.001,
-            "epoch_num": 20001,
+            "lambda": 0.000,
+            "alpha": 0.000,
+            "epoch_num": 30001,
             "num_sampled": 4
         }
     },

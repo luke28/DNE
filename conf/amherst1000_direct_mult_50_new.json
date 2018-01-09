@@ -28,12 +28,12 @@
         }
     },
     "main_loop":{
-        "func": "dne_loop",
+        "func": "new_loop",
         "get_next": {
             "func": "unweighted_get",
             "input_file": "amherst_1000_nw_dynamic",
             "is_directed": false,
-            "num_new_nodes":200
+            "num_new_nodes": 50
         },
         "new_embedding":{
             "batch_strategy":{
@@ -53,19 +53,6 @@
             "num_sampled": 4,
             "negative_distortion": 1.0,
             "epoch_num": 10001
-        },
-        "modify_embedding":{
-            "func": "directly_modify",
-            "batch_strategy":{
-                "func": "edges_delta_sampling"
-            },
-            "batch_size": 100,
-            "learn_rate": 0.003,
-            "optimizer": "AdamOptimizer",
-            "lambda": 0.001,
-            "alpha": 0.001,
-            "epoch_num": 20001,
-            "num_sampled": 4
         }
     },
     "metrics":[

@@ -24,6 +24,7 @@ class ModifyEmbedding(object):
         self.tensor_graph = tf.Graph()
 
         with self.tensor_graph.as_default():
+            tf.set_random_seed(157)
             self.init_w = tf.constant(w)
             self.init_c = tf.constant(c)
 
