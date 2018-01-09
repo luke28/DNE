@@ -40,6 +40,9 @@ def main():
             res = getattr(Metric, metric["func"])(embeddings, metric)
             dh.append_to_file(metric_path, str(res) + "\n")
             print res
+    def draw(embeddings):
+        for drawer in params['drawers']:
+            getattr(Metric, drawer["func"])(embeddings, drawer)
 
     if args.operation == "all":
         G, embeddings, weights = __import__(
