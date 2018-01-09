@@ -6,7 +6,7 @@ class CalculateOptima(object):
         self.num_nodes = len(x_list)
         self.embedding_size = params["embedding_size"]
         self.learn_rate = params["learn_rate"]
-        self.optimzier = params["optimzier"] if "optimizer" in params else "AdamOptimizer"
+        self.optimizer = params["optimizer"] if "optimizer" in params else "AdamOptimizer"
         self.tol = params["tol"] if "tol" in params else 0.001
         self.lbd = lbd_
         self.epoch_num = params["epoch_num"]
@@ -16,10 +16,10 @@ class CalculateOptima(object):
         with self.tensor_graph.as_default():
             self.x_list = []
             for x in x_list:
-                self.x_list.append(tf.constant(x, shape = (self.num_nodes, 1), dtype = tf.float32))
+                self.x_list.append(tf.constant(x, shape = (len(x), 1), dtype = tf.float32))
 
             self.delta_w_list = []
-            for _ in xrange(num_nodes):
+            for _ in xrange(self.num_nodes):
                 self.delta_w_list.append(tf.Variable(tf.random_uniform([self.embedding_size, 1], -1.0, 1.0)))
 
             self.w_list = []
@@ -32,13 +32,17 @@ class CalculateOptima(object):
 
             self.c_ph_list = []
             self.c_list = []
+            cnt = 0
             for c in c_list:
                 self.c_ph_list.append(tf.placeholder(tf.float32, shape = c.shape))
-                self.c_list.append(tf.Variable(self.c_ph_list[-1], trainable = False))
+                self.c_list.append(tf.Variable(self.c_ph_list[-1], trainable = False, name = 'c' + str(cnt)))
+                cnt+= 1
 
+            cnt = 0
             self.y_list = []
             for i in xrange(self.num_nodes):
-                self.y_list.append(tf.Variable(self.x_list[i] - tf.matmul(self.delta_c_ph_list[i], self.w_list[i])))
+                self.y_list.append(tf.Variable(self.x_list[i] - tf.matmul(self.delta_c_ph_list[i], self.w_list[i]), trainable = False, name = 'y' + str(cnt)))
+                cnt += 1
 
             self.loss_list = []
             for i in xrange(self.num_nodes):
@@ -49,24 +53,26 @@ class CalculateOptima(object):
 
         self.sess = tf.Session(graph = self.tensor_graph)
 
+
     def train(self, c_list, delta_c_list):
         print("modify embedding: ")
         feed_dict = {}
         for i in xrange(self.num_nodes):
             feed_dict[self.c_ph_list[i]] = c_list[i]
             feed_dict[self.delta_c_ph_list[i]] = delta_c_list[i]
-        self.sess.run(tf.global_variable_initializer(), feed_dict = feed_dict)
+        with self.tensor_graph.as_default():
+            self.sess.run(tf.global_variables_initializer(), feed_dict = feed_dict)
 
         pre = float('inf')
         for i in xrange(self.epoch_num):
-            self.sess.run(train_step)
+            self.sess.run(self.train_step)
             if (i % 100 == 0):
                 loss = self.sess.run(self.loss)
                 print loss
                 if (abs(loss - pre) < self.tol):
                     break
                 pre = loss
-        ret = np.array(self.sess.run(self.delta_w_list))
+        return self.sess.run(self.delta_w_list)
 
     def __del__(self):
         self.sess.close()

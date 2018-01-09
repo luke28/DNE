@@ -2,25 +2,32 @@ import numpy as np
 import tensorflow as tf
 import math
 
+from utils.data_handler import DataHandler as dh
 class NodeEmbedding(object):
-    def __init__(self, params, unigrams = None):
+    def __init__(self, params, G):
         self.embedding_size = params["embedding_size"]
         self.batch_size = params["batch_size"]
-        self.num_nodes = params["num_nodes"]
+        self.num_nodes = G.number_of_nodes() 
         self.learn_rate = params["learn_rate"]
         self.optimizer = params["optimizer"] if "optimizer" in params else "GradientDescentOptimizer"
-        self.tol = params["tol"] if "tol" in params else 0.001
+        self.tol = params["tol"] if "tol" in params else 0.00001
         self.neighbor_size = params["neighbor_size"]
         self.negative_distortion = params["negative_distortion"]
-        # self.num_sampled = max(1, int(params["num_sampled"] * self.num_nodes))
+        self.bs = __import__(
+                "batch_strategy." + params["batch_strategy"]["func"],
+                fromlist = ["batch_strategy"]).BatchStrategy(G, params["batch_strategy"])
+
+        unigrams = None
+        if "negative_sampling_distribution" in params:
+            unigrams = getattr(dh, params["negative_sampling_distribution"]["func"])(G, params["negative_sampling_distribution"])
+
         self.num_sampled = params["num_sampled"]
         self.epoch_num = params["epoch_num"]
-        #print self.num_sampled
-        #print self.num_nodes
 
         self.tensor_graph = tf.Graph()
 
         with self.tensor_graph.as_default():
+            tf.set_random_seed(157)
             self.inputs = tf.placeholder(tf.int64, shape = [None])
             self.labels = tf.placeholder(tf.int64, shape = [None, self.neighbor_size])
 
@@ -59,13 +66,13 @@ class NodeEmbedding(object):
 
             #self.train_step = tf.train.AdamOptimizer(self.learnRate).minimize(self.cross_entropy)
 
-    def train(self, get_batch, save_path = None):
+    def train(self, save_path = None):
         print("neural embedding: ")
         with tf.Session(graph = self.tensor_graph) as sess:
             sess.run(tf.global_variables_initializer())
             pre = float('inf')
             for i in xrange(self.epoch_num):
-                batch_nodes, batch_y = get_batch(self.batch_size)
+                batch_nodes, batch_y = self.bs.get_batch(self.batch_size)
                 self.train_step.run({self.inputs : batch_nodes, self.labels : batch_y})
                 if (i % 100 == 0):
                     loss = self.loss.eval({self.inputs : batch_nodes, self.labels : batch_y})

@@ -89,4 +89,3 @@ class Metric(object):
         acc /= float(params["times"])
         return acc
 
-
