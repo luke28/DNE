@@ -33,7 +33,7 @@
             "func": "unweighted_get",
             "input_file": "amherst_1000_nw_dynamic",
             "is_directed": false,
-            "num_new_nodes":200
+            "num_new_nodes": 50
         },
         "new_embedding":{
             "batch_strategy":{
@@ -64,8 +64,7 @@
             "optimizer": "AdamOptimizer",
             "lambda": 0.001,
             "alpha": 0.001,
-            "epoch_num": 20001,
-            "num_sampled": 4
+            "epoch_num": 20001
         }
     },
     "metrics":[

@@ -16,20 +16,11 @@ def init(params, metric, output_path):
 
     # get initial embedding results
     def init_train(G, params):
-        module_batch = __import__(
-                "batch_strategy." + params["batch_strategy"]["func"], fromlist = ["batch_strategy"]).BatchStrategy
-
         module_embedding = __import__(
-                "init_embedding." + params["embedding_model"]["func"], fromlist = ["init_embedding"]).NodeEmbedding
+                "init_embedding." + params["func"], fromlist = ["init_embedding"]).NodeEmbedding
 
-        unigrams = None
-        if "negative_sampling_distribution" in params:
-            unigrams = getattr(
-                    dh, params["negative_sampling_distribution"]["func"])(G, params["negative_sampling_distribution"])
-
-        bs = module_batch(G, params["batch_strategy"])
-        ne = module_embedding(params["embedding_model"], unigrams)
-        embeddings, weights = ne.train(bs.get_batch)
+        ne = module_embedding(params, G)
+        embeddings, weights = ne.train()
         return embeddings, weights
 
     G = load_data(params["load_data"])

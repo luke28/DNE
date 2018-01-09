@@ -11,6 +11,9 @@ import networkx as nx
 import tensorflow as tf
 import datetime
 from operator import itemgetter
+import random
+random.seed(157)
+np.random.seed(157)
 
 from utils.env import *
 from utils.metric import Metric
@@ -51,7 +54,7 @@ def main():
                 fromlist = ["dynamic_loop"]
                 ).loop(params["main_loop"], G, embeddings, weights, metric, output_path)
     elif args.operation == "init":
-        G, embeddings, weights = __import__("init." + params["init"]["func"], fromlist = ["init"]).init(params["init"], metric)
+        G, embeddings, weights = __import__("init." + params["init"]["func"], fromlist = ["init"]).init(params["init"], metric, output_path)
     elif args.operation == "draw":
         pass
     else:
