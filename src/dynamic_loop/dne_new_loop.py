@@ -3,6 +3,7 @@ import os
 import json
 import numpy as np
 import time
+import datetime
 from Queue import PriorityQueue as pq
 
 from utils.env import *
@@ -59,11 +60,8 @@ def loop(params, G, embeddings, weights, metric, output_path, draw):
     module_dynamic_embedding = __import__(
             "dynamic_embedding." + params_dynamic["func"],
             fromlist = ["dynamic_embedding"]).NodeEmbedding
-    def dynamic_embedding(G, w, c, modify_listm, num_new):
-        ne = module_dynamic_embedding(params_dynamic, w, c, G, modify_list, num_new)
-        w, c = ne.train()
-        return w, c
 
+    time_path = output_path + "_time"
     dynamic_embeddings = []
     while True:
         num_new = gn.get_next(G)
@@ -71,9 +69,16 @@ def loop(params, G, embeddings, weights, metric, output_path, draw):
             break
         cal_delta(G, embeddings, weights, num_new)
         modify_list = get_modify_list(G, num_new)
-        embeddings, weights = dynamic_embedding(G, embeddings, weights, modify_list, num_new)
+        ne = module_dynamic_embedding(params_dynamic, embeddings, weights, G, modify_list, num_new)
+        
+        st = datetime.datetime.now()
+        embeddings, weights = ne.train()
+        ed = datetime.datetime.now()
+        dh.append_to_file(time_path, str(ed - st) + "\n")
+
         res = metric(embeddings)
         draw(embeddings)
         dynamic_embeddings.append({"embeddings": embeddings.tolist(), "weights": weights.tolist()})
+
     with open(output_path + "_dynamic", "w") as f:
         f.write(json.dumps(dynamic_embeddings))
