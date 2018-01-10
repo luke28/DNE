@@ -1,11 +1,11 @@
 {
-    "num_nodes": 1000,
+    "num_nodes": 10,
     "init":{
         "func": "dne_init",
         "load_data": {
             "func": "load_unweighted_digraph",
             "is_directed": false,
-            "network_file": "amherst_1000_nw_init"
+            "network_file": "karate_10_0.3_nw_init"
         },
         "init_train":{
             "negative_sampling_distribution":{
@@ -15,25 +15,25 @@
                 "func": "weighted_edges_sampling"
             },
             "func": "line",
-            "num_nodes": 1000,
-            "batch_size": 300,
+            "num_nodes": 10,
+            "batch_size": 30,
             "learn_rate": 0.003,
-            "embedding_size": 20,
+            "embedding_size": 2,
             "loss_func": "cross_entropy",
             "optimizer": "AdamOptimizer",
             "neighbor_size": 1,
              "num_sampled": 4,
              "negative_distortion": 1.0,
-             "epoch_num": 30001
+             "epoch_num": 10001
         }
     },
     "main_loop":{
         "func": "dne_new_loop",
         "get_next": {
             "func": "unweighted_get",
-            "input_file": "amherst_1000_nw_dynamic",
+            "input_file": "karate_10_0.3_nw_dynamic",
             "is_directed": false,
-            "num_new_nodes":200
+            "num_new_nodes":12
         },
         "dynamic_embedding":{
             "batch_strategy":{
@@ -47,7 +47,7 @@
             },
             "num_modify": 10,
             "func": "joint_optimize",
-            "batch_size": 300,
+            "batch_size": 30,
             "learn_rate": 0.003,
             "optimizer": "AdamOptimizer",
             "neighbor_size": 1,
@@ -61,7 +61,7 @@
         {
             "func": "classification",
             "classification_func": "logistic",
-            "ground_truth": "amherst_flag.dat",
+            "ground_truth": "karate_flag.dat",
             "test_size": 0.3,
             "times": 4
         }

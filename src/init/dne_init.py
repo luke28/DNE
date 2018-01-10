@@ -7,7 +7,7 @@ import time
 from utils.env import *
 from utils.data_handler import DataHandler as dh
 
-def init(params, metric, output_path):
+def init(params, metric, output_path, draw):
     # load graph structure
     def load_data(params):
         params["network_file"] = os.path.join(DATA_PATH, params["network_file"])
@@ -26,5 +26,6 @@ def init(params, metric, output_path):
     G = load_data(params["load_data"])
     embeddings, weights = init_train(G, params["init_train"])
     metric(embeddings)
+    draw(embeddings)
     return G, embeddings, weights
 

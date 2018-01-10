@@ -8,7 +8,7 @@ from Queue import PriorityQueue as pq
 from utils.env import *
 from utils.data_handler import DataHandler as dh
 
-def loop(params, G, embeddings, weights, metric, output_path):
+def loop(params, G, embeddings, weights, metric, output_path, draw):
     params["get_next"]["input_file"] = os.path.join(DATA_PATH, params["get_next"]["input_file"])
     module_next = __import__(
             "get_next." + params["get_next"]["func"], fromlist = ["get_next"]).GetNext
@@ -73,3 +73,4 @@ def loop(params, G, embeddings, weights, metric, output_path):
         modify_list = get_modify_list(G, num_new)
         embeddings, weights = dynamic_embedding(G, embeddings, weights, modify_list, num_new)
         res = metric(embeddings)
+        draw(embeddings)

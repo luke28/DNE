@@ -7,7 +7,7 @@ import time
 from utils.env import *
 from utils.data_handler import DataHandler as dh
 
-def loop(params, G, embeddings, weights, metric, output_path):
+def loop(params, G, embeddings, weights, metric, output_path, draw):
     params["get_next"]["input_file"] = os.path.join(DATA_PATH, params["get_next"]["input_file"])
     module_next = __import__(
             "get_next." + params["get_next"]["func"], fromlist = ["get_next"]).GetNext
@@ -27,3 +27,4 @@ def loop(params, G, embeddings, weights, metric, output_path):
             break
         embeddings, weights = new_embedding(G, embeddings, weights, num_new)
         res = metric(embeddings)
+        draw(embeddings)

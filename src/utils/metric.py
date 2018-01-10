@@ -12,6 +12,9 @@ from matplotlib.patches import Ellipse, Circle
 from matplotlib.backends.backend_pdf import PdfPages
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import scale
+from sklearn.metrics import f1_score
+from sklearn.multioutput import MultiOutputClassifier
+from sklearn.linear_model import SGDClassifier
 
 
 from env import *
@@ -69,32 +72,31 @@ class Metric(object):
             ax.text(emb[0]+delta_x, emb[1]+delta_y, line_id, ha='center', va='bottom')
             line_id += 1
         plt.axis('scaled')
-        plt.show()
-        #file_path = draw_path+'/'+drawer['func']+'_'+str(draw_cnt)
-        #pp = PdfPages(file_path)
-        #pp.savefig(fig)
-        #pp.close()
+        file_path = os.path.join(draw_path, drawer['func']+'_'+str(draw_cnt))
+        pp = PdfPages(file_path)
+        pp.savefig(fig)
+        pp.close()
 
 
     @staticmethod
-    def multiclass_classification(X, params):
-        from sklearn.metrics import f1_score
-        from sklearn.multioutput import MultiOutputClassifier
-        from sklearn.linear_model import SGDClassifier
+    def multilabel_classification(X, params):
         X_scaled = scale(X)
-        y = dh.load_ground_truth(os.path.join(DATA_PATH, params["ground_truth"]))
+        y = getattr(dh, params['load_ground_truth_func'])(os.path.join(DATA_PATH, params["ground_truth"]))
         y = y[:len(X)]
+        f1_micro = 0.0
+        f1_macro = 0.0
         for _ in xrange(params['times']):
-            X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=params['test_size'], stratify=y)
-            log = MultiOutputClassifier(SGDClassifier(loss='log'),n_jobs=2)
+            X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=params['test_size'])
+            log = MultiOutputClassifier(SGDClassifier(loss='log'), n_jobs = params['n_jobs'])
             log.fit(X_train, y_train)
 
-            f1 = 0
             print(y_test.shape)
             for i in range(y_test.shape[1]):
                 print(y_test[:, i])
                 print(y_test[:, i])
-                f1 = f1_score(y_test[:, i], log.predict(X_test)[:, i], average='micro')
+                f1_micro += f1_score(y_test[:, i], log.predict(X_test)[:, i], average='micro')
+                f1_macro += f1_score(y_test[:, i], log.predict(X_test)[:, i], average='macro')
+        return f1_micro/(float(params['times']*y.shape[1])), f1_macro/(float(params['times']*y.shape[1]))
         
     @staticmethod
     def classification(X, params):
