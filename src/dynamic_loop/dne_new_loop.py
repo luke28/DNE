@@ -64,7 +64,7 @@ def loop(params, G, embeddings, weights, metric, output_path, draw):
         w, c = ne.train()
         return w, c
 
-
+    dynamic_embeddings = []
     while True:
         num_new = gn.get_next(G)
         if num_new == 0:
@@ -74,3 +74,6 @@ def loop(params, G, embeddings, weights, metric, output_path, draw):
         embeddings, weights = dynamic_embedding(G, embeddings, weights, modify_list, num_new)
         res = metric(embeddings)
         draw(embeddings)
+        dynamic_embeddings.append({"embeddings": embeddings.tolist(), "weights": weights.tolist()})
+    with open(output_path + "_dynamic", "w") as f:
+        f.write(json.dumps(dynamic_embeddings))

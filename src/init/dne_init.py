@@ -25,6 +25,8 @@ def init(params, metric, output_path, draw):
 
     G = load_data(params["load_data"])
     embeddings, weights = init_train(G, params["init_train"])
+    with open(output_path + "_init", "w") as f:
+        f.write(json.dumps({"embeddings": embeddings.tolist(), "weights": weights.tolist()}))
     metric(embeddings)
     draw(embeddings)
     return G, embeddings, weights

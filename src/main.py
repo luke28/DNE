@@ -32,23 +32,29 @@ def main():
     args = parser.parse_args()
     params = dh.load_json_file(os.path.join(CONF_PATH, args.conf + ".json"))
 
-    metric_path = os.path.join(RES_PATH, args.conf)
-    if os.path.exists(metric_path) == False:
-        os.mkdir(metric_path)
-    output_path = os.path.join(metric_path, dh.get_time_str())
+    metric_path_pre = os.path.join(RES_PATH, args.conf)
+    if os.path.exists(metric_path_pre) == False:
+        os.mkdir(metric_path_pre)
+    output_path = os.path.join(metric_path_pre, dh.get_time_str())
     metric_path = output_path + "_metric"
-    draw_path = output_path + "_draw"
-    if os.path.exists(draw_path) == False:
-        os.mkdir(draw_path)
-    
 
     def metric(embeddings):
+        if "metrics" not in params:
+            return
         for metric in params["metrics"]:
             res = getattr(Metric, metric["func"])(embeddings, metric)
             dh.append_to_file(metric_path, str(res) + "\n")
             print res
+    dh.symlink(metric_path, os.path.join(metric_path_pre, "new_metric"))
+
+    if "drawers" in params:
+        draw_path = output_path + "_draw"
+        if os.path.exists(draw_path) == False:
+            os.mkdir(draw_path)
     draw_cnt = [0]
     def draw(embeddings):
+        if "drawers" not in params:
+            return
         for drawer in params['drawers']:
             getattr(Metric, drawer["func"])(embeddings, drawer, draw_path, draw_cnt[0])
         draw_cnt[0] += 1
