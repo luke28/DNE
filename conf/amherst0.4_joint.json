@@ -1,11 +1,11 @@
 {
-    "num_nodes": 1000,
+    "num_nodes": 894,
     "init":{
         "func": "dne_init",
         "load_data": {
             "func": "load_unweighted_digraph",
             "is_directed": false,
-            "network_file": "amherst_1000_nw_init"
+            "network_file": "amherst_894_0.4_nw_init"
         },
         "init_train":{
             "negative_sampling_distribution":{
@@ -15,7 +15,7 @@
                 "func": "weighted_edges_sampling"
             },
             "func": "line",
-            "num_nodes": 1000,
+            "num_nodes": 894,
             "batch_size": 300,
             "learn_rate": 0.003,
             "embedding_size": 20,
@@ -31,7 +31,7 @@
         "func": "dne_new_loop",
         "get_next": {
             "func": "unweighted_get",
-            "input_file": "amherst_1000_nw_dynamic",
+            "input_file": "amherst_894_0.4_nw_dynamic",
             "is_directed": false,
             "num_new_nodes":200
         },

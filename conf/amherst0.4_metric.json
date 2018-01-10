@@ -1,0 +1,20 @@
+{
+    "num_nodes": 894,
+    "init":{
+        "func": "dne_metric_init",
+        "embeddings_path": "amherst0.4_joint\/2018-01-10-23:28:00.157418_init"
+    },
+    "main_loop":{
+        "func": "dne_metric_loop",
+        "embeddings_path": "amherst0.4_joint\/2018-01-10-23:28:00.157418_dynamic"
+    },
+    "metrics":[
+        {
+            "func": "classification",
+            "classification_func": "logistic",
+            "ground_truth": "amherst_flag.dat",
+            "test_size": 0.3,
+            "times": 4
+        }
+    ]
+}
