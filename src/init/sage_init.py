@@ -6,7 +6,7 @@ import time
 
 from contrast_experiment.graphsage import unsupervised_train as ut
 
-def init(params, metric, output_path):
+def init(params, metric, output_path, draw):
     params['output_path'] = output_path
     start_time = time.time()
     ut.sage_main(params)

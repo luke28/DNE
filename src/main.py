@@ -37,27 +37,33 @@ def main():
         os.mkdir(metric_path)
     output_path = os.path.join(metric_path, dh.get_time_str())
     metric_path = output_path + "_metric"
+    draw_path = output_path + "_draw"
+    if os.path.exists(draw_path) == False:
+        os.mkdir(draw_path)
+    
 
     def metric(embeddings):
         for metric in params["metrics"]:
             res = getattr(Metric, metric["func"])(embeddings, metric)
             dh.append_to_file(metric_path, str(res) + "\n")
             print res
+    draw_cnt = [0]
     def draw(embeddings):
         for drawer in params['drawers']:
-            getattr(Metric, drawer["func"])(embeddings, drawer)
+            getattr(Metric, drawer["func"])(embeddings, drawer, draw_path, draw_cnt[0])
+        draw_cnt[0] += 1
 
     if args.operation == "all":
         G, embeddings, weights = __import__(
                 "init." + params["init"]["func"],
                 fromlist = ["init"]
-                ).init(params["init"], metric, output_path)
+                ).init(params["init"], metric, output_path, draw)
         __import__(
                 "dynamic_loop." + params["main_loop"]["func"],
                 fromlist = ["dynamic_loop"]
-                ).loop(params["main_loop"], G, embeddings, weights, metric, output_path)
+                ).loop(params["main_loop"], G, embeddings, weights, metric, output_path, draw)
     elif args.operation == "init":
-        G, embeddings, weights = __import__("init." + params["init"]["func"], fromlist = ["init"]).init(params["init"], metric, output_path)
+        G, embeddings, weights = __import__("init." + params["init"]["func"], fromlist = ["init"]).init(params["init"], metric, output_path, draw)
     elif args.operation == "draw":
         pass
     else:

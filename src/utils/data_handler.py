@@ -7,6 +7,7 @@ import numpy as np
 import math
 from datetime import datetime
 from Queue import Queue
+from sklearn.preprocessing import MultiLabelBinarizer
 
 class DataHandler(object):
     @staticmethod
@@ -140,4 +141,32 @@ class DataHandler(object):
                 lst.append([int(i) for i in items])
         lst.sort()
         return [i[1] for i in lst]
+    
+    @staticmethod
+    def load_multilabel_ground_truth(file_path):
+        lst = []
+        with open(file_path, "r") as f:
+            for line in f:
+                line = line.strip()
+                if len(line) == 0:
+                    continue
+                items = line.split()
+                lst.append([int(i) for i in items])
+        lst.sort()
+        lst = [i[1:] for i in lst]
+        mlb = MultiLabelBinarizer()
+        return mlb.fit_transform(lst)
+
+    @staticmethod
+    def load_onehot_ground_truth(file_path):
+        lst = []
+        with open(file_path, "r") as f:
+            for line in f:
+                line = line.strip()
+                if len(line) == 0:
+                    continue
+                items = line.split()
+                lst.append([int(i) for i in items])
+        lst.sort()
+        return np.array([i[1:] for i in lst], dtype=int)
 
