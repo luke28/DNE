@@ -32,7 +32,6 @@ def load_data(prefix, normalize=True, load_walks=False):
     print("in load data func")
     print(len([n for n in G.nodes() if not G.node[n]['test'] and not G.node[n]['val']]), 'train nodes')
     print(len([n for n in G.nodes() if G.node[n]['test'] or G.node[n]['val']]), 'test nodes')
-    raw_input()
     if isinstance(G.nodes()[0], int):
         conversion = lambda n : int(n)
     else:
@@ -65,7 +64,6 @@ def load_data(prefix, normalize=True, load_walks=False):
     print("in load data func")
     print(len([n for n in G.nodes() if not G.node[n]['test'] and not G.node[n]['val']]), 'train nodes')
     print(len([n for n in G.nodes() if G.node[n]['test'] or G.node[n]['val']]), 'test nodes')
-    raw_input()
 
     ## Make sure the graph has edge train_removed annotations
     ## (some datasets might already have this..)
@@ -94,7 +92,7 @@ def load_data(prefix, normalize=True, load_walks=False):
 
 def generate_traindata_for_SAGE(nwFile, flagFile, ratio_train_val, ratio_train, feature_size, dataname, self_loop='yes'):
     id_max = 0
-    id_val = 0
+    id_train_val = 0
     id_train = 0
 
     # read flag
@@ -109,10 +107,11 @@ def generate_traindata_for_SAGE(nwFile, flagFile, ratio_train_val, ratio_train, 
             if len(items) < 2:
                 continue
             items = [int(it) for it in items]
-            node_flag[items[0]] = items[1]
-            if items[1] not in flag_set:
-                flag_set.append(items[1])
-                flag_no += 1
+            node_flag[items[0]] = items[1:]
+            for it in node_flag[items[0]]:
+                if it not in flag_set:
+                    flag_set.append(it)
+                    flag_no += 1
 
     G = nx.Graph(name='disjoint_union(, )')
     class_map = {}
@@ -129,7 +128,6 @@ def generate_traindata_for_SAGE(nwFile, flagFile, ratio_train_val, ratio_train, 
                 id_train = int(id_train_val*ratio_train)
                 print("id_train_val:"+str(id_train_val))
                 print("id_train:" + str(id_train))
-                raw_input()
                 continue
             if len(items) != 2:
                 continue
@@ -140,7 +138,8 @@ def generate_traindata_for_SAGE(nwFile, flagFile, ratio_train_val, ratio_train, 
                 if n not in G:
                     fea_vec = get_random_features(feature_size)
                     label_vec = [0 for i in range(flag_no)]
-                    label_vec[node_flag[n]]=1
+                    for f in node_flag[n]:
+                        label_vec[f]=1
                     class_map[str(n)] = label_vec
                     id_map_unorder[str(n)] = fea_vec
                     if n <= id_train:
@@ -178,15 +177,13 @@ def generate_traindata_for_SAGE(nwFile, flagFile, ratio_train_val, ratio_train, 
     print(len([n for n in G.nodes() if not G.node[n]['test'] and not G.node[n]['val']]), 'train nodes')
     print(len([n for n in G.nodes() if G.node[n]['test'] or G.node[n]['val']]), 'test nodes')
     #save file
-    dataname = dataname+"_"+str(id_val)+"_"+str(ratio_train_val)+"_nw"
+    dataname = dataname+"_"+str(id_train_val)+"_"+str(ratio_train_val)+"_nw"
     Gpath = DATA_PATH+'/'+str(dataname)+'-G.json'
     id_map_path=DATA_PATH+'/'+str(dataname)+'-id_map.json'
     class_map_path=DATA_PATH+'/'+str(dataname)+'-class_map.json'
     feats_path=DATA_PATH+'/'+str(dataname)+'-feats.npy'
     walks_path=DATA_PATH+'/'+str(dataname)+'-walks.txt'
 
-    print(Gpath)
-    raw_input()
     with open(Gpath, 'w') as outfile:
         outfile.write(json.dumps(json_graph.node_link_data(G)))
 
@@ -214,10 +211,11 @@ def init_G(initFile, flagFile, id_map, feats):
             if len(items) < 2:
                 continue
             items = [int(it) for it in items]
-            node_flag[items[0]] = items[1]
-            if items[1] not in flag_set:
-                flag_set.append(items[1])
-                flag_no += 1
+            node_flag[items[0]] = items[1:]
+            for it in node_flag[items[0]]:
+                if it not in flag_set:
+                    flag_set.append(it)
+                    flag_no += 1
     
     edges_init = []
     with open(initFile, 'r') as infile:
@@ -262,7 +260,7 @@ def change_G_status(G):
             G[e[0]][e[1]]['train_removed'] = False
 
 def get_random_features(fea_size):
-    fea = [random.random() for i in range(fea_size)]
+    fea = [random.random() for i in range(int(fea_size))]
     return fea
 
 # edges_added: (f1, node_id)...(fm, node_id)
@@ -283,13 +281,15 @@ def update_G(G, feats, id_map, class_map, edges_added, node_flag, flag_no, isTes
         if fn not in G:
             fea_vec = feats[fn]
             label_vec = [0 for i in range(flag_no)]
-            label_vec[node_flag[fn]]=1
+            for f in node_flag[fn]:
+                label_vec[f]=1
             G.add_node(fn, test=_test, feature=fea_vec, val=_val, label=label_vec)
             class_map[str(fn)]=label_vec
         if tn not in G:
             fea_vec = feats[tn]
             label_vec = [0 for i in range(flag_no)]
-            label_vec[node_flag[tn]]=1
+            for f in node_flag[tn]:
+                label_vec[f]=1
             G.add_node(tn, test=_test, feature=fea_vec, val=_val, label=label_vec)
             class_map[str(tn)]=label_vec
 
@@ -325,20 +325,19 @@ def test_randomwalk():
         fp.write("\n".join([str(p[0]) + "\t" + str(p[1]) for p in pairs]))
 
 def test_generate_input():
-    nwFile="/home/wangyun/repos/DNE/data/amherst_nw.dat"
-    flagFile="/home/wangyun/repos/DNE/data/amherst_flag.dat"
+    nwFile="/home/wangyun/repos/DNE/data/blog_nw.dat"
+    flagFile="/home/wangyun/repos/DNE/data/blog_flag.dat"
     ratio=0.7
     feature_size=10
-    dataname="amherst"
+    dataname="blog"
     outputPath="/home/wangyun/repos/GraphSAGE/input_data"
-    generate_traindata_for_SAGE(nwFile, flagFile, ratio, feature_size, dataname, outputPath)
+    generate_traindata_for_SAGE(nwFile, flagFile, ratio, ratio, feature_size, dataname, outputPath)
 
 def test():
     init_file="/home/wangyun/repos/GraphSAGE/input_data/dolphins_40_nw_init"
     flag_file="/home/wangyun/repos/GraphSAGE/input_data/dolphins_40_nw_flag"
     feature_size=10
     [G, feats, id_map, walks, class_map, node_flag, flag_no] = init_G(init_file, flag_file, feature_size)
-    raw_input()
     if False:
         with open("/home/wangyun/repos/GraphSAGE/output_data/G.json", 'w') as outfile:
             outfile.write(json.dumps(json_graph.node_link_data(G)))

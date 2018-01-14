@@ -22,6 +22,7 @@ def init(params, metric, output_path, draw):
     module_embedding = __import__(
             "init_embedding." + params["init_train"]["func"], fromlist = ["init_embedding"]).NodeEmbedding
     ne = module_embedding(params["init_train"], G)
+    print("after module_embedding")
     st = datetime.datetime.now()
     embeddings, weights = ne.train()
     ed = datetime.datetime.now()

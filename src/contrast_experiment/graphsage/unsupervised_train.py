@@ -3,15 +3,18 @@ from __future__ import print_function
 
 import sys,os
 import time
+import datetime
 import tensorflow as tf
 import numpy as np
 from utils.env import * 
 sys.path.append(os.path.join(SRC_PATH, "contrast_experiment") )
+from utils.data_handler import DataHandler as dh
 
 from graphsage.models import SampleAndAggregate, SAGEInfo, Node2VecModel
 from graphsage.minibatch import EdgeMinibatchIterator
 from graphsage.neigh_samplers import UniformNeighborSampler
 from graphsage.utils_sage import *
+
 
 os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
 
@@ -98,17 +101,13 @@ def incremental_evaluate(sess, model, minibatch_iter, size):
         val_mrrs.append(outs_val[2])
     return np.mean(val_losses), np.mean(val_mrrs), (time.time() - t_test)
 
-def save_val_embeddings(sess, model, minibatch_iter, size, out_dir, num_nodes, metric, mod=None):
+def save_val_embeddings(sess, model, minibatch_iter, size, out_dir, num_nodes, metric, draw=None, mod=None):
     val_embeddings = []
     finished = False
     seen = set([])
     nodes = []
     iter_num = 0
     name = "embed"
-    if mod is None:
-        mod = ''
-    else:
-        mod = str(num_nodes)
     while not finished:
         feed_dict_val, finished, edges = minibatch_iter.incremental_embed_feed_dict(size, iter_num)
         iter_num += 1
@@ -123,10 +122,13 @@ def save_val_embeddings(sess, model, minibatch_iter, size, out_dir, num_nodes, m
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
     val_embeddings = np.vstack(val_embeddings)
+    if draw is not None:
+        print("#############draw embedding")
+        draw(val_embeddings)
     # evaluate 
     metric(val_embeddings)
-    np.save(out_dir + name + mod + ".npy",  val_embeddings)
-    with open(out_dir + name + mod + ".txt", "w") as fp:
+    np.save(out_dir + name + str(num_nodes) + ".npy",  val_embeddings)
+    with open(out_dir + name + str(num_nodes) + ".txt", "w") as fp:
         fp.write("\n".join(map(str,nodes)))
 
 def construct_placeholders():
@@ -142,7 +144,7 @@ def construct_placeholders():
     }
     return placeholders
 
-def train(train_data, params, num_nodes=None, metric=None, test_data=None):
+def train(train_data, params, num_nodes=None, metric=None, draw=None, test_data=None):
     G = train_data[0]
     features = train_data[1]
     id_map = train_data[2]
@@ -353,7 +355,7 @@ def train(train_data, params, num_nodes=None, metric=None, test_data=None):
 
     if FLAGS.save_embeddings:
         sess.run(val_adj_info.op)
-        save_val_embeddings(sess, model, minibatch, FLAGS.validate_batch_size, log_dir(params['output_path']), num_nodes, metric)
+        save_val_embeddings(sess, model, minibatch, FLAGS.validate_batch_size, log_dir(params['output_path']), num_nodes, metric, draw)
         if FLAGS.model == "n2v":
             # stopping the gradient for the already trained nodes
             train_ids = tf.constant([[id_map[n]] for n in G.nodes_iter() if not G.node[n]['val'] and not G.node[n]['test']],
@@ -399,7 +401,7 @@ def train(train_data, params, num_nodes=None, metric=None, test_data=None):
                               "train_mrr=", "{:.5f}".format(outs[-2]))
                     test_steps += 1
             train_time = time.time() - start_time
-            save_val_embeddings(sess, model, minibatch, FLAGS.validate_batch_size, log_dir(), mod="-test")
+            save_val_embeddings(sess, model, minibatch, FLAGS.validate_batch_size, log_dir())
             print("Total time: ", train_time+walk_time)
             print("Walk time: ", walk_time)
             print("Train time: ", train_time)
@@ -410,9 +412,9 @@ def train(train_data, params, num_nodes=None, metric=None, test_data=None):
     tf.reset_default_graph()
     sess.close()
 
-def dynamic_test(init_file, dynamic_file, feats, id_map, flag_file, params, metric):
+def dynamic_test(init_file, dynamic_file, feats, id_map, flag_file, params, metric, draw):
     [G, walks, class_map, node_flag, flag_no] = init_G(init_file, flag_file, id_map, feats)
-    train([G, feats, id_map, walks, class_map], params, G.number_of_nodes(), metric)
+    train([G, feats, id_map, walks, class_map], params, G.number_of_nodes(), metric, draw)
     change_G_status(G)
     print("first test finished!, enter to continue")
     node_edges_lst = []
@@ -433,6 +435,7 @@ def dynamic_test(init_file, dynamic_file, feats, id_map, flag_file, params, metr
 
     edges_added = []
     none_line = 0
+    start_time = datetime.datetime.now()
     for i in range(len(node_edges_lst)):
         # add edges
         none_line += 1
@@ -445,10 +448,13 @@ def dynamic_test(init_file, dynamic_file, feats, id_map, flag_file, params, metr
             G_part = G.subgraph(nodes)
             walks = run_random_walks(G_part, nodes)
             # train model
-            train([G, feats, id_map, walks, class_map], params, G.number_of_nodes(), metric)
+            train([G, feats, id_map, walks, class_map], params, G.number_of_nodes(), metric, draw)
             change_G_status(G)
             print("update status: "+str(G.number_of_nodes()) + "nodes, enter to continue")
 
+            end_time = datetime.datetime.now()
+            dh.append_to_file(params['output_path']+"_time", str(end_time-start_time)+"\n")
+            start_time = end_time
             none_line = 0
             edges_added = []
 
@@ -459,8 +465,10 @@ def dynamic_test(init_file, dynamic_file, feats, id_map, flag_file, params, metr
         G_part = G.subgraph(nodes)
         walks = run_random_walks(G_part, nodes)
         # train model
-        train([G, feats, id_map, walks, class_map], params, G.number_of_nodes(), metric)
+        train([G, feats, id_map, walks, class_map], params, G.number_of_nodes(), metric, draw)
         change_G_status(G)
+        end_time = datetime.datetime.now()
+        dh.append_to_file(params['output_path']+"_time", str(end_time-start_time)+"\n")
         print("update status: "+str(G.number_of_nodes()) + "nodes, enter to continue")
 
 
@@ -473,13 +481,13 @@ def train_main(params):
     G = train_data[0]
     train(train_data, params)
 
-def test_main(params, metric):
+def test_main(params, metric, draw):
     print("Loading Training Data...")
     train_data = load_data(FLAGS.train_prefix, load_walks=True)
     init_file = FLAGS.testfile_prefix+"_init"
     dynamic_file = FLAGS.testfile_prefix+"_dynamic"
     flag_file = params['flag_file']
-    dynamic_test(init_file, dynamic_file, train_data[1], train_data[2], flag_file, params, metric)
+    dynamic_test(init_file, dynamic_file, train_data[1], train_data[2], flag_file, params, metric, draw)
 
 # old
 def Mymain(argv=None):
@@ -495,7 +503,7 @@ def Mymain(argv=None):
         train_data = load_data(FLAGS.train_prefix, load_walks=True)
         dynamic_test(init_file, dynamic_file, train_data[1], train_data[2], flag_file)
 
-def sage_main(params, metric=None):
+def sage_main(params, metric=None, draw=None):
     if params['isTrain']:
         f = flags.FLAGS
         f._parse_flags()
@@ -533,5 +541,5 @@ def sage_main(params, metric=None):
         FLAGS.dim_2 = params['dim_2']
 
         # test model
-        test_main(params, metric)
+        test_main(params, metric, draw)
         #tf.app.run(main=test_main, argv=[params, metric])
