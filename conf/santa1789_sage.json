@@ -1,0 +1,50 @@
+{
+    "num_nodes": 1789,
+    "init":{
+        "func": "sage_init",
+        "isTrain": true,
+        "train_prefix": "/home/wangyun/repos/DNE/data/santa_1789_0.5_nw",
+        "model": "graphsage_mean" ,
+        "save_embeddings": false ,
+        "batch_size": 256,
+        "validation_batch_size": 256,
+        "max_total_steps": 1000,
+        "epochs": 10001,
+        "validate_iter":3000,
+        "nwFile": "/home/wangyun/repos/DNE/data/santa_nw.dat",
+        "flagFile": "/home/wangyun/repos/DNE/data/santa_flag.dat",
+        "ratio_train_val": 0.5,
+        "ratio_train": 0.8,
+        "feature_size": 20,
+        "dataname": "santa",
+        "self_loop": "yes",
+        "dim_1": 10,
+        "dim_2": 10
+    },
+    "main_loop":{
+        "func": "sage_loop",
+        "isTrain": false,
+        "train_prefix": "/home/wangyun/repos/DNE/data/santa_1789_0.5_nw" ,
+        "test_prefix": "/home/wangyun/repos/DNE/data/santa_1789_0.5_nw",
+        "model": "graphsage_mean" ,
+        "save_embeddings": true ,
+        "batch_size": 256,
+        "validation_batch_size": 256,
+        "test_batch_size": 200,
+        "max_total_steps": 3000,
+        "validate_iter":1000,
+        "flag_file": "/home/wangyun/repos/DNE/data/santa_flag.dat",
+        "dim_1": 10,
+        "dim_2": 10
+    },
+    "metrics":[
+        {
+            "func": "classification",
+            "classification_func": "logistic",
+            "ground_truth": "santa_flag.dat",
+            "test_size": 0.5,
+            "times": 4
+        }
+    ]
+
+}

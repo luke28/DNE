@@ -4,6 +4,8 @@ import time
 import networkx as nx
 import json
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
 from operator import itemgetter
@@ -57,6 +59,11 @@ class Metric(object):
 
     @staticmethod
     def draw_circle_2D(embeddings, drawer, draw_path, draw_cnt):
+        font = {'family' : 'serif',
+                'color'  : 'darkred',
+                'weight' : 'normal',
+                'size'   : 26}
+
         x = embeddings[:,0]
         y = embeddings[:,1]
         T = np.arctan2(x, y)
@@ -65,8 +72,8 @@ class Metric(object):
         ax = fig.add_subplot(1,1,1)
 
         ax.scatter(embeddings[:, 0], embeddings[:, 1], c = T, alpha = 0.8, marker='o')
-        delta_x = -0.1
-        delta_y = 0.1
+        delta_x = -0.01
+        delta_y = 0.01
         line_id = 0
         for emb in embeddings:
             ax.text(emb[0]+delta_x, emb[1]+delta_y, line_id, ha='center', va='bottom')
@@ -90,10 +97,7 @@ class Metric(object):
             log = MultiOutputClassifier(SGDClassifier(loss='log'), n_jobs = params['n_jobs'])
             log.fit(X_train, y_train)
 
-            print(y_test.shape)
             for i in range(y_test.shape[1]):
-                print(y_test[:, i])
-                print(y_test[:, i])
                 f1_micro += f1_score(y_test[:, i], log.predict(X_test)[:, i], average='micro')
                 f1_macro += f1_score(y_test[:, i], log.predict(X_test)[:, i], average='macro')
         return f1_micro/(float(params['times']*y.shape[1])), f1_macro/(float(params['times']*y.shape[1]))
@@ -112,7 +116,7 @@ class Metric(object):
         return acc
 
 if __name__ == '__main__':
-    X = np.random.uniform(1, 10, 16).reshape(8, 2)
+    X = np.random.uniform(-0.1, 0.1, 16).reshape(8, 2)
     drawer = {}
     drawer['func'] = 'abc'
     draw_cnt = 1

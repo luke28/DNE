@@ -1,0 +1,54 @@
+{
+    "num_nodes": 10,
+    "init":{
+        "func": "sage_init",
+        "isTrain": true,
+        "train_prefix": "/home/wangyun/repos/DNE/data/karate_10_0.3_nw" ,
+        "model": "graphsage_mean" ,
+        "save_embeddings": false ,
+        "batch_size": 30,
+        "validation_batch_size": 30,
+        "max_total_steps": 100,
+        "epochs": 10001,
+        "validate_iter":20,
+        "nwFile": "/home/wangyun/repos/DNE/data/karate_nw.dat",
+        "flagFile": "/home/wangyun/repos/DNE/data/karate_flag.dat",
+        "ratio_train_val": 0.3,
+        "ratio_train": 0.9,
+        "feature_size": 3,
+        "dataname": "karate",
+        "self_loop": "yes",
+        "dim_1": 1,
+        "dim_2": 1
+    },
+    "main_loop":{
+        "func": "sage_loop",
+        "isTrain": false,
+        "train_prefix": "/home/wangyun/repos/DNE/data/karate_10_0.3_nw" ,
+        "test_prefix": "/home/wangyun/repos/DNE/data/karate_10_0.3_nw",
+        "model": "graphsage_mean" ,
+        "save_embeddings": true ,
+        "batch_size": 30,
+        "validation_batch_size": 30,
+        "test_batch_size": 12,
+        "max_total_steps": 50,
+        "validate_iter":50,
+        "flag_file": "/home/wangyun/repos/DNE/data/karate_flag.dat",
+        "dim_1": 1,
+        "dim_2": 1
+    },
+    "metrics":[
+        {
+            "func": "classification",
+            "classification_func": "logistic",
+            "ground_truth": "amherst_flag.dat",
+            "test_size": 0.5,
+            "times": 4
+        }
+    ],
+    "drawers":[
+        {
+            "func": "draw_circle_2D"
+        }
+    ]
+}
