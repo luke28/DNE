@@ -17,17 +17,18 @@ def loop(params, G, embeddings, weights, metric, output_path, draw):
 
     params_dynamic = params["dynamic_embedding"]
     K = params_dynamic["num_sampled"]
-    def cal_delta(G, embeddings, weights, num_new):
+    def cal_delta(num_new):
         num_pre = G.number_of_nodes() - num_new
         delta_real = np.matmul(embeddings, np.transpose(weights))
         for u, v in G.edges():
             if u >= num_pre or v >= num_pre:
                 continue
-            G[u][v]['delta'] = delta_real[u, v] - np.log(
+            delta_real = np.matmul(embeddings[[u]], weights[[v]].T)[0, 0]
+            G[u][v]['delta'] = delta_real - np.log(
                     float(G[u][v]['weight'] * G.graph['degree']) / float(G.node[u]['in_degree'] * G.node[v]['out_degree'])) + np.log(K)
 
 
-    def get_modify_list(G, num_new):
+    def get_modify_list(num_new):
         num_pre = G.number_of_nodes() - num_new
         delta_list = [0.0] * num_pre
         for u, v in G.edges():
@@ -67,8 +68,8 @@ def loop(params, G, embeddings, weights, metric, output_path, draw):
         num_new = gn.get_next(G)
         if num_new == 0:
             break
-        cal_delta(G, embeddings, weights, num_new)
-        modify_list = get_modify_list(G, num_new)
+        cal_delta(num_new)
+        modify_list = get_modify_list(num_new)
         ne = module_dynamic_embedding(params_dynamic, embeddings, weights, G, modify_list, num_new)
         
         st = datetime.datetime.now()

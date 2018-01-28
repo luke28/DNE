@@ -60,7 +60,10 @@
     "metrics":[
         {
             "func": "classification",
-            "classification_func": "logistic",
+            "classification":{
+                "func": "logistic",
+                "n_jobs": 2
+            },
             "ground_truth": "amherst_flag.dat",
             "test_size": 0.3,
             "times": 4

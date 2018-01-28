@@ -8,8 +8,8 @@ import re
 
 class MachineLearningLib(object):
     @staticmethod
-    def svm(X, y):
-        clf = svm.SVC()
+    def svm(X, y, params):
+        clf = svm.SVC(n_jobs=params['n_jobs'] if 'n_jobs' in params else 1)
         clf.fit(X, y)
         return clf
 
@@ -22,14 +22,14 @@ class MachineLearningLib(object):
             return y, clf.score(X, y_true)
 
     @staticmethod
-    def logistic(X, y):
-        clf = LogisticRegression(multi_class = 'multinomial', solver = 'newton-cg', max_iter = 10000)
+    def logistic(X, y, params):
+        clf = LogisticRegression(multi_class = 'multinomial', solver = 'newton-cg', max_iter = 10000, n_jobs=params['n_jobs'] if 'n_jobs' in params else 1)
         clf.fit(X, y)
         return clf
 
     @staticmethod
-    def cart(X, y):
-        clf = CART()
+    def cart(X, y, params):
+        clf = CART(n_jobs=params['n_jobs'] if 'n_jobs' in params else 1)
         clf.fit(X, y)
         return clf
 

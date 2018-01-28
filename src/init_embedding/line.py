@@ -70,18 +70,19 @@ class NodeEmbedding(object):
         print("neural embedding: ")
         with tf.Session(graph = self.tensor_graph) as sess:
             sess.run(tf.global_variables_initializer())
-            pre = float('inf')
+            #pre = float('inf')
             for i in xrange(self.epoch_num):
                 batch_nodes, batch_y = self.bs.get_batch(self.batch_size)
                 self.train_step.run({self.inputs : batch_nodes, self.labels : batch_y})
-                if (i % 100 == 0):
+                #if (i % 100 == 0):
+                #    loss = self.loss.eval({self.inputs : batch_nodes, self.labels : batch_y})
+                if (i % 1000 == 0):
                     loss = self.loss.eval({self.inputs : batch_nodes, self.labels : batch_y})
-                    if (i % 1000 == 0):
-                        print(loss)
-                    if abs(loss - pre) < self.tol:
-                        break
-                    else:
-                        pre = loss
+                    print(loss)
+                #    if abs(loss - pre) < self.tol:
+                #        break
+                #    else:
+                #        pre = loss
             if save_path is not None:
                 saver = tf.train.Saver()
                 saver.save(sess, save_path)
