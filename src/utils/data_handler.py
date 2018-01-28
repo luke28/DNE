@@ -53,6 +53,14 @@ class DataHandler(object):
             ret[u] = G.node[u]['in_degree']
         return ret
 
+    @staticmethod
+    def in_degree_distribution_init(G, num_nodes, params = None):
+        ret = [0.0] * num_nodes
+        for u in G:
+            if u >= num_nodes:
+                continue
+            ret[u] = G.node[u]['in_degree']
+        return ret
 
     @staticmethod
     def load_graph(file_path):

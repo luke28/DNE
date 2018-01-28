@@ -3,6 +3,7 @@ import os
 import json
 import numpy as np
 import time
+import datetime
 
 from utils.env import *
 from utils.data_handler import DataHandler as dh
@@ -20,11 +21,14 @@ def loop(params, G, embeddings, weights, metric, output_path, draw):
         ne = module_new_embedding(params_new, G)
         embeddings, weights = ne.train()
         return embeddings, weights
-
+    time_path = output_path + "_time"
     while True:
         num_new = gn.get_next(G)
         if num_new == 0:
             break
+        st = datetime.datetime.now()
         embeddings, weights = new_embedding(G, embeddings, weights, num_new)
+        ed = datetime.datetime.now()
+        dh.append_to_file(time_path, str(ed - st) + "\n")
         res = metric(embeddings)
         draw(embeddings)

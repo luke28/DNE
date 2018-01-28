@@ -1,11 +1,11 @@
 {
-    "num_nodes": 894,
+    "num_nodes": 9224,
     "init":{
         "func": "dne_init",
         "load_data": {
             "func": "load_unweighted_digraph",
             "is_directed": false,
-            "network_file": "amherst_894_0.4_nw_init"
+            "network_file": "Auburn71_9224_0.5_nw_init"
         },
         "init_train":{
             "negative_sampling_distribution":{
@@ -15,8 +15,7 @@
                 "func": "weighted_edges_sampling"
             },
             "func": "line",
-            "num_nodes": 894,
-            "batch_size": 300,
+            "batch_size": 100,
             "learn_rate": 0.003,
             "embedding_size": 20,
             "loss_func": "cross_entropy",
@@ -24,50 +23,43 @@
             "neighbor_size": 1,
              "num_sampled": 4,
              "negative_distortion": 1.0,
-             "epoch_num": 30001
+             "epoch_num": 100001
         }
     },
     "main_loop":{
-        "func": "dne_new_loop",
+        "func": "whole_loop",
         "get_next": {
             "func": "unweighted_get",
-            "input_file": "amherst_894_0.4_nw_dynamic",
+            "input_file": "Auburn71_9224_0.5_nw_dynamic",
             "is_directed": false,
-            "num_new_nodes":200
+            "num_new_nodes": 2000
         },
-        "dynamic_embedding":{
-            "batch_strategy":{
-                "func": "joint_sampling"
-            },
-            "in_negative_sampling_distribution":{
-                "func": "in_degree_distribution"
-            },
-            "out_negative_sampling_distribution":{
+        "new_embedding":{
+            "negative_sampling_distribution":{
                 "func": "out_degree_distribution"
             },
-            "num_modify": 10,
-            "func": "joint_optimize",
-            "batch_size": 300,
+            "batch_strategy":{
+                "func": "weighted_edges_sampling"
+            },
+            "func": "line",
+            "batch_size": 100,
             "learn_rate": 0.003,
+            "embedding_size": 20,
+            "loss_func": "cross_entropy",
             "optimizer": "AdamOptimizer",
             "neighbor_size": 1,
             "num_sampled": 4,
-            "lambda": 0.001,
             "negative_distortion": 1.0,
-            "epoch_num": 10001
+            "epoch_num": 100001
         }
     },
     "metrics":[
         {
             "func": "classification",
-            "classification":{
-                "func": "logistic",
-                "n_jobs": 2
-            },
-            "ground_truth": "amherst_flag.dat",
+            "classification_func": "logistic",
+            "ground_truth": "Auburn71_flag.dat",
             "test_size": 0.3,
             "times": 4
         }
     ]
-
 }

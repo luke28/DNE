@@ -30,8 +30,6 @@ conf/Duke14_sage.json
 conf/amherst558_sage.json
 conf/mutag_sage.json
 
-
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
