@@ -3,6 +3,7 @@ src/out
 res/
 *.swp
 data/
+data_candidates/
 
 # new
 conf/Auburn71_line.json
