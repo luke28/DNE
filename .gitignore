@@ -3,6 +3,34 @@ src/out
 res/
 *.swp
 data/
+data_candidates/
+
+# new
+conf/Auburn71_line.json
+conf/Auburn71_sage.json
+conf/BC17_line.json
+conf/BC17_sage.json
+conf/BU10_line.json
+conf/BU10_sage.json
+conf/Baylor93_line.json
+conf/Baylor93_sage.json
+conf/Berkeley13_line.json
+conf/Berkeley13_sage.json
+conf/Bingham82_line.json
+conf/Bingham82_sage.json
+conf/Brown11_line.json
+conf/Brown11_sage.json
+conf/Cal65_line.json
+conf/Cal65_sage.json
+conf/Columbia2_line.json
+conf/Columbia2_sage.json
+conf/Cornell5_line.json
+conf/Cornell5_sage.json
+conf/Duke14_line.json
+conf/Duke14_sage.json
+conf/amherst558_sage.json
+conf/mutag_sage.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

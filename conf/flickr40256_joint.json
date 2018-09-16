@@ -1,11 +1,11 @@
 {
-    "num_nodes": 10,
+    "num_nodes": 40256,
     "init":{
         "func": "dne_init",
         "load_data": {
             "func": "load_unweighted_digraph",
             "is_directed": false,
-            "network_file": "karate_10_0.3_nw_init"
+            "network_file": "flickr_40256_0.5_nw_init"
         },
         "init_train":{
             "negative_sampling_distribution":{
@@ -15,59 +15,56 @@
                 "func": "weighted_edges_sampling"
             },
             "func": "line",
-            "batch_size": 30,
+            "num_nodes": 40256,
+            "batch_size": 300,
             "learn_rate": 0.003,
-            "embedding_size": 2,
+            "embedding_size": 20,
             "loss_func": "cross_entropy",
             "optimizer": "AdamOptimizer",
             "neighbor_size": 1,
              "num_sampled": 4,
              "negative_distortion": 1.0,
-             "epoch_num": 10001
+             "epoch_num": 30001
         }
     },
     "main_loop":{
-        "func": "whole_loop",
+        "func": "dne_new_loop",
         "get_next": {
             "func": "unweighted_get",
-            "input_file": "karate_10_0.3_nw_dynamic",
+            "input_file": "flickr_40256_0.5_nw_dynamic",
             "is_directed": false,
-            "num_new_nodes": 12
+            "num_new_nodes":1500
         },
-        "new_embedding":{
-            "negative_sampling_distribution":{
+        "dynamic_embedding":{
+            "batch_strategy":{
+                "func": "joint_sampling"
+            },
+            "in_negative_sampling_distribution":{
+                "func": "in_degree_distribution"
+            },
+            "out_negative_sampling_distribution":{
                 "func": "out_degree_distribution"
             },
-            "batch_strategy":{
-                "func": "weighted_edges_sampling"
-            },
-            "func": "line",
-            "batch_size": 30,
+            "num_modify": 10,
+            "func": "joint_optimize",
+            "batch_size": 300,
             "learn_rate": 0.003,
-            "embedding_size": 2,
-            "loss_func": "cross_entropy",
             "optimizer": "AdamOptimizer",
             "neighbor_size": 1,
             "num_sampled": 4,
+            "lambda": 0.001,
             "negative_distortion": 1.0,
             "epoch_num": 10001
         }
     },
     "metrics":[
         {
-            "func": "classification",
-            "classification": {
-                "func" : "logistic",
-                "n_jobs" : 1
-            },
-            "ground_truth": "karate_flag.dat",
+            "func": "multilabel_classification",
+            "load_ground_truth_func": "load_multilabel_ground_truth",
+            "ground_truth": "flickr_flag.dat",
+            "n_jobs": 1,
             "test_size": 0.3,
             "times": 4
-        }
-    ],
-    "drawers":[
-        {
-            "func": "draw_circle_2D"
         }
     ]
 

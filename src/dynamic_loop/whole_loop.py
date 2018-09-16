@@ -22,14 +22,19 @@ def loop(params, G, embeddings, weights, metric, output_path, draw):
         embeddings, weights = ne.train()
         return embeddings, weights
     time_path = output_path + "_time"
+    dynamic_embeddings = []
     while True:
         num_new = gn.get_next(G)
         if num_new == 0:
             break
-
         st = datetime.datetime.now()
         embeddings, weights = new_embedding(G, embeddings, weights, num_new)
         ed = datetime.datetime.now()
         dh.append_to_file(time_path, str(ed - st) + "\n")
         res = metric(embeddings)
         draw(embeddings)
+        dynamic_embeddings.append({"embeddings": embeddings.tolist(), "weights": weights.tolist()})
+
+    with open(output_path + "_dynamic", "w") as f:
+        f.write(json.dumps(dynamic_embeddings))
+

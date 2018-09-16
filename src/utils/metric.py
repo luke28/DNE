@@ -118,11 +118,8 @@ class Metric(object):
             for i in range(y_test.shape[1]):
                 f1_micro += f1_score(y_test[:, i], log.predict(X_test)[:, i], average='micro')
                 f1_macro += f1_score(y_test[:, i], log.predict(X_test)[:, i], average='macro')
-                
         return f1_micro/(float(params['times']*y.shape[1])), f1_macro/(float(params['times']*y.shape[1]))
-            
     
-        
     @staticmethod
     def classification(X, params):
         X_scaled = scale(X)
