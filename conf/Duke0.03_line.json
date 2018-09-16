@@ -1,0 +1,69 @@
+{
+    "num_nodes": 296,
+    "init":{
+        "func": "dne_init",
+        "load_data": {
+            "func": "load_unweighted_digraph",
+            "is_directed": false,
+            "network_file": "Duke14_296_0.03_nw_init"
+        },
+        "init_train":{
+            "negative_sampling_distribution":{
+                "func": "out_degree_distribution"
+            },
+            "batch_strategy":{
+                "func": "weighted_edges_sampling"
+            },
+            "func": "line",
+            "batch_size": 100,
+            "learn_rate": 0.003,
+            "embedding_size": 20,
+            "loss_func": "cross_entropy",
+            "optimizer": "AdamOptimizer",
+            "neighbor_size": 1,
+             "num_sampled": 4,
+             "negative_distortion": 1.0,
+             "epoch_num": 100001
+        }
+    },
+    "main_loop":{
+        "func": "whole_loop",
+        "get_next": {
+            "func": "unweighted_get",
+            "input_file": "Duke14_296_0.03_nw_dynamic",
+            "is_directed": false,
+            "num_new_nodes": 800
+        },
+        "new_embedding":{
+            "negative_sampling_distribution":{
+                "func": "out_degree_distribution"
+            },
+            "batch_strategy":{
+                "func": "weighted_edges_sampling"
+            },
+            "func": "line",
+            "batch_size": 100,
+            "learn_rate": 0.003,
+            "embedding_size": 20,
+            "loss_func": "cross_entropy",
+            "optimizer": "AdamOptimizer",
+            "neighbor_size": 1,
+            "num_sampled": 4,
+            "negative_distortion": 1.0,
+            "epoch_num": 100001
+        }
+    },
+    "metrics":[
+        {
+            "func": "classification",
+            "classification": {
+                "func" : "logistic",
+                "n_jobs" : 2
+            },
+            "ground_truth": "Duke14_flag.dat",
+            "test_size": 0.3,
+            "times": 4
+        }
+    ]
+
+}

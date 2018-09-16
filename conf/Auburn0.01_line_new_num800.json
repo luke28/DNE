@@ -1,11 +1,11 @@
 {
-    "num_nodes": 2473,
+    "num_nodes": 184,
     "init":{
         "func": "dne_init",
         "load_data": {
             "func": "load_unweighted_digraph",
             "is_directed": false,
-            "network_file": "Duke14_2473_0.25_nw_init"
+            "network_file": "Auburn71_184_0.01_nw_init"
         },
         "init_train":{
             "negative_sampling_distribution":{
@@ -15,8 +15,8 @@
                 "func": "weighted_edges_sampling"
             },
             "func": "line",
-            "num_nodes": 558,
-            "batch_size": 100,
+            "num_nodes": 184,
+            "batch_size": 300,
             "learn_rate": 0.003,
             "embedding_size": 20,
             "loss_func": "cross_entropy",
@@ -24,37 +24,32 @@
             "neighbor_size": 1,
              "num_sampled": 4,
              "negative_distortion": 1.0,
-             "epoch_num": 50001
+             "epoch_num": 30001
         }
     },
     "main_loop":{
-        "func": "dne_new_loop_enhance",
+        "func": "line_new_loop",
         "get_next": {
-            "func": "unweighted_get",
-            "input_file": "Duke14_2473_0.25_nw_dynamic",
+            "func": "unweighted_get_line_new",
+            "input_file": "Auburn71_184_0.01_nw_dynamic",
             "is_directed": false,
-            "num_new_nodes":200
+            "num_new_nodes": 800
         },
         "dynamic_embedding":{
             "batch_strategy":{
-                "func": "enhance_joint_sampling"
+                "func": "weighted_line_new_sampling"
             },
-            "in_negative_sampling_distribution":{
-                "func": "in_degree_distribution"
+            "negative_sampling_distribution":{
+                "func": "in_degree_distribution_init"
             },
-            "out_negative_sampling_distribution":{
-                "func": "out_degree_distribution"
-            },
-            "num_modify": 10,
-            "func": "joint_enhance_optimize",
+            "func": "line_new",
             "batch_size": 300,
             "learn_rate": 0.003,
             "optimizer": "AdamOptimizer",
             "neighbor_size": 1,
             "num_sampled": 4,
-            "lambda": 0.001,
             "negative_distortion": 1.0,
-            "epoch_num": 10001
+            "epoch_num": 101
         }
     },
     "metrics":[
@@ -64,7 +59,7 @@
                 "func": "logistic",
                 "n_jobs": 2
             },
-            "ground_truth": "Duke14_flag.dat",
+            "ground_truth": "Auburn71_flag.dat",
             "test_size": 0.3,
             "times": 4
         }
